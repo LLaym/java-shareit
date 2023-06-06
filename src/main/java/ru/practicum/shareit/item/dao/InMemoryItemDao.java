@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Repository
 public class InMemoryItemDao implements ItemDao {
-    private Map<Long, Item> items = new HashMap<>();
+    private final Map<Long, Item> items = new HashMap<>();
     private Long nextId = 0L;
 
     @Override

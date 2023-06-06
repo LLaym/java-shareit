@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Repository
 public class InMemoryUserDao implements UserDao {
-    private Map<Long, User> users = new HashMap<>();
+    private final Map<Long, User> users = new HashMap<>();
     private Long nextId = 0L;
 
     @Override

@@ -1,4 +1,3 @@
-
 package ru.practicum.shareit.user.mapper;
 
 import org.springframework.stereotype.Component;
