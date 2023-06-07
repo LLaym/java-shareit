@@ -21,12 +21,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(long id) {
         User user = userDao.findById(id);
-        return userMapper.mapFrom(user);
+        return userMapper.toUserDto(user);
     }
 
     @Override
-    public User updateUser(User user) {
-        return userDao.update(user);
+    public User updateUser(long id, User user) {
+        return userDao.update(id, user);
     }
 
     @Override

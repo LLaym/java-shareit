@@ -9,7 +9,7 @@ import java.util.Map;
 @Repository
 public class InMemoryUserDao implements UserDao {
     private final Map<Long, User> users = new HashMap<>();
-    private Long nextId = 0L;
+    private Long nextId = 1L;
 
     @Override
     public User save(User user) {
@@ -24,8 +24,9 @@ public class InMemoryUserDao implements UserDao {
     }
 
     @Override
-    public User update(User user) {
-        users.put(user.getId(), user);
+    public User update(long id, User user) {
+        users.put(id, user);
+        user.setId(id);
         return user;
     }
 

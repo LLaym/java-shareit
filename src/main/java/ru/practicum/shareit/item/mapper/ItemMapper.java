@@ -6,7 +6,7 @@ import ru.practicum.shareit.item.model.Item;
 
 @Component
 public class ItemMapper {
-    public ItemDto mapFrom(Item item) {
-        return new ItemDto(item.getName(), item.getDescription(), item.getIsAvailable());
+    public ItemDto toItemDto(Item item) {
+        return new ItemDto(item.getId(), item.getOwnerId(), item.getName(), item.getDescription(), item.getAvailable());
     }
 }

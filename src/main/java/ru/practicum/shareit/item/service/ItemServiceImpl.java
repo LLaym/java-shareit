@@ -22,7 +22,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto getItemById(long id) {
         Item item = itemDao.findById(id);
-        return itemMapper.mapFrom(item);
+        return itemMapper.toItemDto(item);
     }
 
     @Override
