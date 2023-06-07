@@ -14,9 +14,13 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
 
     @Override
-    public Item addNewItem(long ownerId, Item item) {
+    public ItemDto addNewItem(long ownerId, ItemDto itemDto) {
+        Item item = new Item();
+
         item.setOwnerId(ownerId);
-        return itemDao.save(item);
+        itemDao.save(item);
+
+        return itemMapper.toItemDto(item);
     }
 
     @Override
@@ -26,8 +30,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item updateItem(Item item) {
-        return itemDao.update(item);
+    public ItemDto updateItem(ItemDto itemDto) {
+        Item item = new Item();
+
+        itemDao.update(item);
+
+        return itemMapper.toItemDto(item);
     }
 
     @Override

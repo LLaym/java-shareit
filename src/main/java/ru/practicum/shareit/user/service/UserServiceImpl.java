@@ -14,8 +14,12 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public User addNewUser(User user) {
-        return userDao.save(user);
+    public UserDto addNewUser(UserDto userDto) {
+        User user = new User();
+
+        userDao.save(user);
+
+        return userMapper.toUserDto(user);
     }
 
     @Override
@@ -25,8 +29,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(long id, User user) {
-        return userDao.update(id, user);
+    public UserDto updateUser(long id, UserDto userDto) {
+        User user = new User();
+
+        userDao.update(id, user);
+
+        return userMapper.toUserDto(user);
     }
 
     @Override
