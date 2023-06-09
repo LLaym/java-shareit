@@ -12,9 +12,6 @@ import javax.validation.constraints.Min;
 import javax.validation.groups.Default;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor

@@ -12,9 +12,6 @@ import javax.validation.constraints.Min;
 import javax.validation.groups.Default;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -27,17 +24,17 @@ public class ItemController {
         return itemService.addNewItem(ownerId, itemDto);
     }
 
+    @GetMapping("/{id}")
+    public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
+                               @PathVariable @Min(1L) long id) {
+        return itemService.getItemById(userId, id);
+    }
+
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long ownerId,
                               @PathVariable @Min(1L) long id,
                               @RequestBody @Validated({Default.class, UpdateItemAction.class}) ItemDto itemDto) {
         return itemService.updateItem(ownerId, id, itemDto);
-    }
-
-    @GetMapping("/{id}")
-    public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
-                               @PathVariable @Min(1L) long id) {
-        return itemService.getItemById(userId, id);
     }
 
     @GetMapping

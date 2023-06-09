@@ -32,6 +32,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    public ItemDto getItemById(long userId, long id) {
+        checkUserExist(userId);
+        checkItemExist(id);
+
+        Item item = itemDao.findById(id);
+
+        return itemMapper.toItemDto(item);
+    }
+
+    @Override
     public ItemDto updateItem(long ownerId, long id, ItemDto itemDto) {
         checkUserExist(ownerId);
         checkItemExist(id);
@@ -53,21 +63,6 @@ public class ItemServiceImpl implements ItemService {
         }
 
         return itemMapper.toItemDto(itemDao.update(item));
-    }
-
-    @Override
-    public ItemDto getItemById(long userId, long id) {
-        checkUserExist(userId);
-        checkItemExist(id);
-
-        Item item = itemDao.findById(id);
-
-        return itemMapper.toItemDto(item);
-    }
-
-    @Override
-    public void deleteItemById(long id) {
-        itemDao.deleteById(id);
     }
 
     @Override
@@ -99,15 +94,15 @@ public class ItemServiceImpl implements ItemService {
         return itemsDtos;
     }
 
-    private void checkUserExist(long id) {
-        if (!userDao.userExist(id)) {
-            throw new NotFoundException("Пользователь с id " + id + " не найден");
-        }
-    }
-
     private void checkItemExist(long id) {
         if (!itemDao.itemExist(id)) {
             throw new NotFoundException("Вещь с id " + id + " не найдена");
+        }
+    }
+
+    private void checkUserExist(long id) {
+        if (!userDao.userExist(id)) {
+            throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
     }
 }

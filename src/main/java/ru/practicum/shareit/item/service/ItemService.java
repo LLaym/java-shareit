@@ -11,8 +11,6 @@ public interface ItemService {
 
     ItemDto updateItem(long ownerId, long id, ItemDto itemDto);
 
-    void deleteItemById(long id);
-
     List<ItemDto> getAllItemsByOwnerId(long ownerId);
 
     List<ItemDto> getAllItemsBySubstring(long userId, String substring);

@@ -11,11 +11,9 @@ public interface ItemDao {
 
     Item update(Item item);
 
-    void deleteById(long id);
-
-    boolean itemExist(long id);
-
     List<Item> findAllByOwnerId(long ownerId);
 
     List<Item> findAllBySubstring(String substring);
+
+    boolean itemExist(long id);
 }

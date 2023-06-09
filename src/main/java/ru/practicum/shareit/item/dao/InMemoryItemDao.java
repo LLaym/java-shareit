@@ -33,21 +33,6 @@ public class InMemoryItemDao implements ItemDao {
     }
 
     @Override
-    public void deleteById(long id) {
-        items.remove(id);
-    }
-
-    @Override
-    public boolean itemExist(long id) {
-        for (Item item : items.values()) {
-            if (item.getId().equals(id)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public List<Item> findAllByOwnerId(long ownerId) {
         return items.values().stream()
                 .filter(item -> item.getOwnerId().equals(ownerId))
@@ -66,5 +51,15 @@ public class InMemoryItemDao implements ItemDao {
                             || (item.getDescription().toLowerCase().contains(query)))
                     .collect(Collectors.toList());
         }
+    }
+
+    @Override
+    public boolean itemExist(long id) {
+        for (Item item : items.values()) {
+            if (item.getId().equals(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
