@@ -13,7 +13,9 @@ public interface UserDao {
 
     void deleteById(long id);
 
+    List<User> findAll();
+
     boolean emailExist(String email);
 
-    List<User> findAll();
+    boolean userExist(long id);
 }

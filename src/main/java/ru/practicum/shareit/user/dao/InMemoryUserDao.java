@@ -36,6 +36,11 @@ public class InMemoryUserDao implements UserDao {
     }
 
     @Override
+    public List<User> findAll() {
+        return (List) users.values();
+    }
+
+    @Override
     public boolean emailExist(String email) {
         for (User user : users.values()) {
             if (user.getEmail().equals(email)) {
@@ -46,7 +51,12 @@ public class InMemoryUserDao implements UserDao {
     }
 
     @Override
-    public List<User> findAll() {
-        return (List) users.values();
+    public boolean userExist(long id) {
+        for (User user : users.values()) {
+            if (user.getId().equals(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

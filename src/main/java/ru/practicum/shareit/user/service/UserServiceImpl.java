@@ -30,17 +30,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(long id) {
-        User user = userDao.findById(id);
+        checkUserExist(id);
 
-        if (user == null) {
-            throw new NotFoundException("пользователь с id " + id + " не найден");
-        }
+        User user = userDao.findById(id);
 
         return userMapper.toUserDto(user);
     }
 
     @Override
     public UserDto updateUser(long id, UserDto userDto) {
+        checkUserExist(id);
+
         User user = userDao.findById(id);
 
         if (userDto.getName() != null) {
@@ -58,12 +58,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUserById(long id) {
-        User user = userDao.findById(id);
-
-        if (user == null) {
-            throw new NotFoundException("пользователь с id " + id + " не найден");
-        }
-
+        checkUserExist(id);
         userDao.deleteById(id);
     }
 
@@ -82,6 +77,12 @@ public class UserServiceImpl implements UserService {
     private void checkEmailDuplicate(String email) {
         if (userDao.emailExist(email)) {
             throw new EmailAlreadyExistException("Такой email уже существует");
+        }
+    }
+
+    private void checkUserExist(long id) {
+        if (!userDao.userExist(id)) {
+            throw new NotFoundException("пользователь с id " + id + " не найден");
         }
     }
 }
