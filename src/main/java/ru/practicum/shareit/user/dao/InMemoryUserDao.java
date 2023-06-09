@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -24,14 +25,28 @@ public class InMemoryUserDao implements UserDao {
     }
 
     @Override
-    public User update(long id, User user) {
-        users.put(id, user);
-        user.setId(id);
+    public User update(User user) {
+        users.put(user.getId(), user);
         return user;
     }
 
     @Override
     public void deleteById(long id) {
         users.remove(id);
+    }
+
+    @Override
+    public boolean emailExist(String email) {
+        for (User user : users.values()) {
+            if (user.getEmail().equals(email)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public List<User> findAll() {
+        return (List) users.values();
     }
 }
