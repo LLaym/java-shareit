@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
 
     private void checkUserExist(long id) {
         if (!userDao.userExist(id)) {
-            throw new NotFoundException("пользователь с id " + id + " не найден");
+            throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
     }
 }
