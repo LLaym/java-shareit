@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dao.ItemDao;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
@@ -28,6 +30,7 @@ public class ItemServiceImpl implements ItemService {
         item.setOwnerId(ownerId);
         Item itemCreated = itemDao.save(item);
 
+        log.info("Добавлена новая вещь: {}", itemCreated);
         return itemMapper.toItemDto(itemCreated);
     }
 
@@ -38,6 +41,7 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = itemDao.findById(id);
 
+        log.info("Передана вещь: {}", item);
         return itemMapper.toItemDto(item);
     }
 
@@ -62,7 +66,10 @@ public class ItemServiceImpl implements ItemService {
             item.setAvailable(itemDto.getAvailable());
         }
 
-        return itemMapper.toItemDto(itemDao.update(item));
+        Item itemUpdated = itemDao.update(item);
+
+        log.info("Обновлена вещь: {}", itemUpdated);
+        return itemMapper.toItemDto(itemUpdated);
     }
 
     @Override
@@ -76,6 +83,7 @@ public class ItemServiceImpl implements ItemService {
             itemsDtos.add(itemMapper.toItemDto(item));
         }
 
+        log.info("Передан список вещей пользователя с id {}: {}", ownerId, items);
         return itemsDtos;
     }
 
@@ -91,6 +99,7 @@ public class ItemServiceImpl implements ItemService {
             itemsDtos.add(itemMapper.toItemDto(item));
         }
 
+        log.info("Передан список найденых вещей по запросу {}: {}", substring, items);
         return itemsDtos;
     }
 

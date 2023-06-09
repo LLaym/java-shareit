@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dao.UserDao;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -12,6 +13,7 @@ import ru.practicum.shareit.util.exception.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -25,6 +27,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(userDto);
         User userCreated = userDao.save(user);
 
+        log.info("Добавлен новый пользователь: {}", userCreated);
         return userMapper.toUserDto(userCreated);
     }
 
@@ -34,6 +37,7 @@ public class UserServiceImpl implements UserService {
 
         User user = userDao.findById(id);
 
+        log.info("Передан пользователь: {}", user);
         return userMapper.toUserDto(user);
     }
 
@@ -53,13 +57,20 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userDto.getEmail());
         }
 
-        return userMapper.toUserDto(userDao.update(user));
+        User userUpdated = userDao.update(user);
+
+        log.info("Обновлён пользователь: {}", userUpdated);
+        return userMapper.toUserDto(userUpdated);
     }
 
     @Override
     public void deleteUserById(long id) {
         checkUserExist(id);
+
+        User user = userDao.findById(id);
+
         userDao.deleteById(id);
+        log.info("Удалён пользователь: {}", user);
     }
 
     @Override
@@ -71,6 +82,7 @@ public class UserServiceImpl implements UserService {
             usersDtos.add(userMapper.toUserDto(user));
         }
 
+        log.info("Передан список пользователей: {}", users);
         return usersDtos;
     }
 
