@@ -3,11 +3,12 @@ package ru.practicum.shareit.user.dao;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserDao {
     User save(User user);
 
-    User findById(long id);
+    Optional<User> findById(long id);
 
     User update(User user);
 
@@ -16,6 +17,4 @@ public interface UserDao {
     List<User> findAll();
 
     boolean emailExist(String email);
-
-    boolean userExist(long id);
 }

@@ -3,10 +3,7 @@ package ru.practicum.shareit.user.dao;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class InMemoryUserDao implements UserDao {
@@ -21,8 +18,8 @@ public class InMemoryUserDao implements UserDao {
     }
 
     @Override
-    public User findById(long id) {
-        return users.get(id);
+    public Optional<User> findById(long id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     @Override
@@ -45,16 +42,6 @@ public class InMemoryUserDao implements UserDao {
     public boolean emailExist(String email) {
         for (User user : users.values()) {
             if (user.getEmail().equals(email)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean userExist(long id) {
-        for (User user : users.values()) {
-            if (user.getId().equals(id)) {
                 return true;
             }
         }

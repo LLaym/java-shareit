@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dao.UserDao;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.util.exception.AlreadyExistException;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.util.exception.AlreadyExistException;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
-        checkEmailDuplicate(userDto.getEmail());
+        throwIfEmailExist(userDto.getEmail());
 
         User user = userMapper.toUser(userDto);
         User userCreated = userDao.save(user);
@@ -33,9 +33,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getById(long id) {
-        checkUserExist(id);
-
-        User user = userDao.findById(id);
+        User user = userDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
 
         log.info("Передан пользователь: {}", user);
         return userMapper.toUserDto(user);
@@ -43,15 +42,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto update(long id, UserDto userDto) {
-        checkUserExist(id);
-
-        User user = userDao.findById(id);
+        User user = userDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
 
         if (userDto.getName() != null) {
             user.setName(userDto.getName());
         }
         if (userDto.getEmail() != null && !user.getEmail().equals(userDto.getEmail())) {
-            checkEmailDuplicate(userDto.getEmail());
+            throwIfEmailExist(userDto.getEmail());
         }
         if (userDto.getEmail() != null) {
             user.setEmail(userDto.getEmail());
@@ -65,9 +63,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(long id) {
-        checkUserExist(id);
-
-        User user = userDao.findById(id);
+        User user = userDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
 
         userDao.deleteById(id);
         log.info("Удалён пользователь: {}", user);
@@ -86,15 +83,9 @@ public class UserServiceImpl implements UserService {
         return usersDtos;
     }
 
-    private void checkEmailDuplicate(String email) {
+    private void throwIfEmailExist(String email) {
         if (userDao.emailExist(email)) {
             throw new AlreadyExistException("Такой email уже существует");
-        }
-    }
-
-    private void checkUserExist(long id) {
-        if (!userDao.userExist(id)) {
-            throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
     }
 }

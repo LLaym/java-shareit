@@ -3,10 +3,7 @@ package ru.practicum.shareit.item.dao;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -22,8 +19,8 @@ public class InMemoryItemDao implements ItemDao {
     }
 
     @Override
-    public Item findById(long id) {
-        return items.get(id);
+    public Optional<Item> findById(long id) {
+        return Optional.ofNullable(items.get(id));
     }
 
     @Override
@@ -51,15 +48,5 @@ public class InMemoryItemDao implements ItemDao {
                             || (item.getDescription().toLowerCase().contains(query)))
                     .collect(Collectors.toList());
         }
-    }
-
-    @Override
-    public boolean itemExist(long id) {
-        for (Item item : items.values()) {
-            if (item.getId().equals(id)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

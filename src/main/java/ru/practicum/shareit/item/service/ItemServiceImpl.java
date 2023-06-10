@@ -24,7 +24,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto create(long ownerId, ItemDto itemDto) {
-        checkUserExist(ownerId);
+        userDao.findById(ownerId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + ownerId + " не найден"));
 
         Item item = itemMapper.toItem(itemDto);
         item.setOwnerId(ownerId);
@@ -36,10 +37,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getById(long userId, long id) {
-        checkUserExist(userId);
-        checkItemExist(id);
+        userDao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
 
-        Item item = itemDao.findById(id);
+        Item item = itemDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
 
         log.info("Передана вещь: {}", item);
         return itemMapper.toItemDto(item);
@@ -47,10 +49,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(long ownerId, long id, ItemDto itemDto) {
-        checkUserExist(ownerId);
-        checkItemExist(id);
+        userDao.findById(ownerId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + ownerId + " не найден"));
 
-        Item item = itemDao.findById(id);
+        Item item = itemDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
 
         if (item.getOwnerId() != ownerId) {
             throw new NotFoundException("Вещь с id " + id + " не принадлежит пользователю с id " + ownerId);
@@ -74,7 +77,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllByOwnerId(long ownerId) {
-        checkUserExist(ownerId);
+        userDao.findById(ownerId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + ownerId + " не найден"));
 
         List<Item> items = itemDao.findAllByOwnerId(ownerId);
         List<ItemDto> itemsDtos = new ArrayList<>();
@@ -89,7 +93,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllBySubstring(long userId, String substring) {
-        checkUserExist(userId);
+        userDao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
 
         List<Item> items = itemDao.findAllBySubstring(substring).stream()
                 .filter(Item::getAvailable).collect(Collectors.toList());
@@ -101,17 +106,5 @@ public class ItemServiceImpl implements ItemService {
 
         log.info("Передан список найденых вещей по запросу {}: {}", substring, items);
         return itemsDtos;
-    }
-
-    private void checkItemExist(long id) {
-        if (!itemDao.itemExist(id)) {
-            throw new NotFoundException("Вещь с id " + id + " не найдена");
-        }
-    }
-
-    private void checkUserExist(long id) {
-        if (!userDao.userExist(id)) {
-            throw new NotFoundException("Пользователь с id " + id + " не найден");
-        }
     }
 }
