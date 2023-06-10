@@ -10,7 +10,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dao.UserDao;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,14 +79,11 @@ public class ItemServiceImpl implements ItemService {
         userDao.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + ownerId + " не найден"));
 
-        List<Item> items = itemDao.findAllByOwnerId(ownerId);
-        List<ItemDto> itemsDtos = new ArrayList<>();
+        List<ItemDto> itemsDtos = itemDao.findAllByOwnerId(ownerId).stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
 
-        for (Item item : items) {
-            itemsDtos.add(itemMapper.toItemDto(item));
-        }
-
-        log.info("Передан список вещей пользователя с id {}: {}", ownerId, items);
+        log.info("Передан список вещей пользователя с id {}", ownerId);
         return itemsDtos;
     }
 
@@ -96,15 +92,12 @@ public class ItemServiceImpl implements ItemService {
         userDao.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
 
-        List<Item> items = itemDao.findAllBySubstring(substring).stream()
-                .filter(Item::getAvailable).collect(Collectors.toList());
-        List<ItemDto> itemsDtos = new ArrayList<>();
+        List<ItemDto> itemsDtos = itemDao.findAllBySubstring(substring).stream()
+                .filter(Item::getAvailable)
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
 
-        for (Item item : items) {
-            itemsDtos.add(itemMapper.toItemDto(item));
-        }
-
-        log.info("Передан список найденых вещей по запросу {}: {}", substring, items);
+        log.info("Передан список найденых вещей по запросу {}", substring);
         return itemsDtos;
     }
 }

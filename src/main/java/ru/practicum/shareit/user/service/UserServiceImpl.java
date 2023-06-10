@@ -10,8 +10,8 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.util.exception.AlreadyExistException;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -72,14 +72,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAll() {
-        List<User> users = userDao.findAll();
-        List<UserDto> usersDtos = new ArrayList<>();
+        List<UserDto> usersDtos = userDao.findAll().stream()
+                .map(userMapper::toUserDto)
+                .collect(Collectors.toList());
 
-        for (User user : users) {
-            usersDtos.add(userMapper.toUserDto(user));
-        }
-
-        log.info("Передан список пользователей: {}", users);
+        log.info("Передан список всех пользователей");
         return usersDtos;
     }
 
