@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dao.UserDao;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.exception.EmailAlreadyExistException;
+import ru.practicum.shareit.util.exception.AlreadyExistException;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.util.exception.NotFoundException;
@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
 
     private void checkEmailDuplicate(String email) {
         if (userDao.emailExist(email)) {
-            throw new EmailAlreadyExistException("Такой email уже существует");
+            throw new AlreadyExistException("Такой email уже существует");
         }
     }
 
