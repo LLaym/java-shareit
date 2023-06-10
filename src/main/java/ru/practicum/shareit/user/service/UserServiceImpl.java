@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserDto addNewUser(UserDto userDto) {
+    public UserDto create(UserDto userDto) {
         checkEmailDuplicate(userDto.getEmail());
 
         User user = userMapper.toUser(userDto);
@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUserById(long id) {
+    public UserDto getById(long id) {
         checkUserExist(id);
 
         User user = userDao.findById(id);
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(long id, UserDto userDto) {
+    public UserDto update(long id, UserDto userDto) {
         checkUserExist(id);
 
         User user = userDao.findById(id);
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUserById(long id) {
+    public void deleteById(long id) {
         checkUserExist(id);
 
         User user = userDao.findById(id);
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAllUsers() {
+    public List<UserDto> getAll() {
         List<User> users = userDao.findAll();
         List<UserDto> usersDtos = new ArrayList<>();
 

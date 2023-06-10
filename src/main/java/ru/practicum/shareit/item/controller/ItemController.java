@@ -19,32 +19,32 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto addNewItem(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                              @RequestBody @Validated({Default.class, AddNewItemAction.class}) ItemDto itemDto) {
-        return itemService.addNewItem(ownerId, itemDto);
+    public ItemDto create(@RequestHeader("X-Sharer-User-Id") long ownerId,
+                          @RequestBody @Validated({Default.class, AddNewItemAction.class}) ItemDto itemDto) {
+        return itemService.create(ownerId, itemDto);
     }
 
     @GetMapping("/{id}")
-    public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
-                               @PathVariable @Min(1L) long id) {
-        return itemService.getItemById(userId, id);
+    public ItemDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
+                           @PathVariable @Min(1L) long id) {
+        return itemService.getById(userId, id);
     }
 
     @PatchMapping("/{id}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                              @PathVariable @Min(1L) long id,
-                              @RequestBody @Validated({Default.class, UpdateItemAction.class}) ItemDto itemDto) {
-        return itemService.updateItem(ownerId, id, itemDto);
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") long ownerId,
+                          @PathVariable @Min(1L) long id,
+                          @RequestBody @Validated({Default.class, UpdateItemAction.class}) ItemDto itemDto) {
+        return itemService.update(ownerId, id, itemDto);
     }
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long ownerId) {
-        return itemService.getAllItemsByOwnerId(ownerId);
+    public List<ItemDto> getAllByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
+        return itemService.getAllByOwnerId(ownerId);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getAllItemsBySubstring(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                @RequestParam(name = "text") String substring) {
-        return itemService.getAllItemsBySubstring(userId, substring);
+    public List<ItemDto> getAllBySubstring(@RequestHeader("X-Sharer-User-Id") long userId,
+                                           @RequestParam(name = "text") String substring) {
+        return itemService.getAllBySubstring(userId, substring);
     }
 }

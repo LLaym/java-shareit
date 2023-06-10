@@ -23,7 +23,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserDao userDao;
 
     @Override
-    public ItemDto addNewItem(long ownerId, ItemDto itemDto) {
+    public ItemDto create(long ownerId, ItemDto itemDto) {
         checkUserExist(ownerId);
 
         Item item = itemMapper.toItem(itemDto);
@@ -35,7 +35,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(long userId, long id) {
+    public ItemDto getById(long userId, long id) {
         checkUserExist(userId);
         checkItemExist(id);
 
@@ -46,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto updateItem(long ownerId, long id, ItemDto itemDto) {
+    public ItemDto update(long ownerId, long id, ItemDto itemDto) {
         checkUserExist(ownerId);
         checkItemExist(id);
 
@@ -73,7 +73,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsByOwnerId(long ownerId) {
+    public List<ItemDto> getAllByOwnerId(long ownerId) {
         checkUserExist(ownerId);
 
         List<Item> items = itemDao.findAllByOwnerId(ownerId);
@@ -88,7 +88,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsBySubstring(long userId, String substring) {
+    public List<ItemDto> getAllBySubstring(long userId, String substring) {
         checkUserExist(userId);
 
         List<Item> items = itemDao.findAllBySubstring(substring).stream()
