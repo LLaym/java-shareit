@@ -23,8 +23,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto create(long ownerId, ItemDto itemDto) {
-        userDao.findById(ownerId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + ownerId + " не найден"));
+        throwIfUserNotExist(ownerId);
 
         Item item = itemMapper.toItem(itemDto);
         item.setOwnerId(ownerId);
@@ -36,8 +35,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getById(long userId, long id) {
-        userDao.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+        throwIfUserNotExist(userId);
 
         Item item = itemDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
@@ -48,8 +46,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(long ownerId, long id, ItemDto itemDto) {
-        userDao.findById(ownerId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + ownerId + " не найден"));
+        throwIfUserNotExist(ownerId);
 
         Item item = itemDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
@@ -76,8 +73,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllByOwnerId(long ownerId) {
-        userDao.findById(ownerId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + ownerId + " не найден"));
+        throwIfUserNotExist(ownerId);
 
         List<ItemDto> itemsDtos = itemDao.findAllByOwnerId(ownerId).stream()
                 .map(itemMapper::toItemDto)
@@ -89,8 +85,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllBySubstring(long userId, String substring) {
-        userDao.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+        throwIfUserNotExist(userId);
 
         List<ItemDto> itemsDtos = itemDao.findAllBySubstring(substring).stream()
                 .filter(Item::getAvailable)
@@ -99,5 +94,10 @@ public class ItemServiceImpl implements ItemService {
 
         log.info("Передан список найденых вещей по запросу {}", substring);
         return itemsDtos;
+    }
+
+    private void throwIfUserNotExist(long userId) {
+        userDao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 }

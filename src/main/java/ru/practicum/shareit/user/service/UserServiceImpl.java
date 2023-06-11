@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
 
     private void throwIfEmailExist(String email) {
         if (userDao.emailExist(email)) {
-            throw new AlreadyExistException("Такой email уже существует");
+            throw new AlreadyExistException("Email " + email + " уже существует");
         }
     }
 }
