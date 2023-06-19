@@ -4,61 +4,56 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dao.UserDao;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.util.exception.AlreadyExistException;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
-    private final UserMapper userMapper;
 
     @Override
-    public UserDto create(UserDto userDto) {
-        throwIfEmailExist(userDto.getEmail());
+    public User create(User user) {
+        throwIfEmailExist(user.getEmail());
 
-        User user = userMapper.toUser(userDto);
         User userCreated = userDao.save(user);
 
         log.info("Добавлен новый пользователь: {}", userCreated);
-        return userMapper.toUserDto(userCreated);
+        return userCreated;
     }
 
     @Override
-    public UserDto getById(long id) {
+    public User getById(long id) {
         User user = userDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
 
         log.info("Передан пользователь: {}", user);
-        return userMapper.toUserDto(user);
+        return user;
     }
 
     @Override
-    public UserDto update(long id, UserDto userDto) {
-        User user = userDao.findById(id)
+    public User update(long id, User user) {
+        User userToUpdate = userDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
 
-        if (userDto.getName() != null) {
-            user.setName(userDto.getName());
+        if (user.getName() != null) {
+            userToUpdate.setName(user.getName());
         }
-        if (userDto.getEmail() != null && !user.getEmail().equals(userDto.getEmail())) {
-            throwIfEmailExist(userDto.getEmail());
+        if (user.getEmail() != null && !userToUpdate.getEmail().equals(user.getEmail())) {
+            throwIfEmailExist(user.getEmail());
         }
-        if (userDto.getEmail() != null) {
-            user.setEmail(userDto.getEmail());
+        if (user.getEmail() != null) {
+            userToUpdate.setEmail(user.getEmail());
         }
 
-        User userUpdated = userDao.save(user);
+        User userUpdated = userDao.save(userToUpdate);
 
         log.info("Обновлён пользователь: {}", userUpdated);
-        return userMapper.toUserDto(userUpdated);
+        return userUpdated;
     }
 
     @Override
@@ -71,17 +66,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAll() {
-        List<UserDto> usersDtos = userDao.findAll().stream()
-                .map(userMapper::toUserDto)
-                .collect(Collectors.toList());
+    public List<User> getAll() {
+        List<User> users = userDao.findAll();
 
         log.info("Передан список всех пользователей");
-        return usersDtos;
+        return users;
     }
 
     private void throwIfEmailExist(String email) {
-        userDao.findByEmail(email)
-                .orElseThrow(() -> new AlreadyExistException("Email " + email + " уже существует"));
+        if (userDao.findByEmail(email).isPresent()) {
+            throw new AlreadyExistException("Email " + email + " уже существует");
+        }
     }
 }

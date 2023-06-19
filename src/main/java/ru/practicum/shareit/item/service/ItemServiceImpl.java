@@ -19,37 +19,36 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final ItemDao itemDao;
     private final UserDao userDao;
-    private final ItemMapper itemMapper;
 
     @Override
-    public ItemDto create(long ownerId, ItemDto itemDto) {
-        throwIfUserNotExist(ownerId);
-
-        Item item = itemMapper.toItem(itemDto);
-        item.setOwner(userDao.findById(ownerId).get());
+    public Item create(Item item) {
         Item itemCreated = itemDao.save(item);
 
         log.info("Добавлена новая вещь: {}", itemCreated);
-        return itemMapper.toItemDto(itemCreated);
+        return itemCreated;
     }
 
     @Override
-    public ItemDto getById(long userId, long id) {
+    public Item getById(long userId, long id) {
         throwIfUserNotExist(userId);
 
         Item item = itemDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
 
         log.info("Передана вещь: {}", item);
-        return itemMapper.toItemDto(item);
+        return item;
     }
 
     @Override
-    public ItemDto update(long ownerId, long id, ItemDto itemDto) {
+    public Item update(long ownerId, long id, ItemDto itemDto) {
         throwIfUserNotExist(ownerId);
 
         Item item = itemDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
+
+        if (item.getOwner().getId() != ownerId) {
+            throw new NotFoundException("Вещь с id " + id + " не принадлежит пользователю с id " + ownerId);
+        }
 
         if (itemDto.getName() != null) {
             item.setName(itemDto.getName());
@@ -64,32 +63,33 @@ public class ItemServiceImpl implements ItemService {
         Item itemUpdated = itemDao.save(item);
 
         log.info("Обновлена вещь: {}", itemUpdated);
-        return itemMapper.toItemDto(itemUpdated);
+        return itemUpdated;
     }
 
     @Override
-    public List<ItemDto> getAllByOwnerId(long ownerId) {
+    public List<Item> getAllByOwnerId(long ownerId) {
         throwIfUserNotExist(ownerId);
 
-        List<ItemDto> itemsDto = itemDao.findAllByOwnerId(ownerId).stream()
-                .map(itemMapper::toItemDto)
-                .collect(Collectors.toList());
+        List<Item> items = itemDao.findAllByOwnerId(ownerId);
 
         log.info("Передан список вещей пользователя с id {}", ownerId);
-        return itemsDto;
+        return items;
     }
 
     @Override
-    public List<ItemDto> getAllBySubstring(long userId, String substring) {
+    public List<Item> getAllBySubstring(long userId, String substring) {
         throwIfUserNotExist(userId);
 
-        List<ItemDto> itemsDtos = itemDao.findAllByNameOrDescriptionContainingIgnoreCase(substring, substring).stream()
+        if (substring.equals("")) {
+            return List.of();
+        }
+
+        List<Item> items = itemDao.findAllByNameOrDescriptionContainingIgnoreCase(substring, substring).stream()
                 .filter(Item::getAvailable)
-                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
 
         log.info("Передан список найденых вещей по запросу {}", substring);
-        return itemsDtos;
+        return items;
     }
 
     private void throwIfUserNotExist(long userId) {
