@@ -35,7 +35,7 @@ public class InMemoryItemDao implements ItemDao {
     @Override
     public List<Item> findAllByOwnerId(long ownerId) {
         return items.values().stream()
-                .filter(item -> item.getOwnerId().equals(ownerId))
+                .filter(item -> item.getOwner().getId().equals(ownerId))
                 .collect(Collectors.toList());
     }
 

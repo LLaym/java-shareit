@@ -26,7 +26,7 @@ public class ItemServiceImpl implements ItemService {
         throwIfUserNotExist(ownerId);
 
         Item item = itemMapper.toItem(itemDto);
-        item.setOwnerId(ownerId);
+        item.setOwner(userDao.findById(ownerId).get());
         Item itemCreated = itemDao.save(item);
 
         log.info("Добавлена новая вещь: {}", itemCreated);
@@ -50,10 +50,6 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = itemDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
-
-        if (item.getOwnerId() != ownerId) {
-            throw new NotFoundException("Вещь с id " + id + " не принадлежит пользователю с id " + ownerId);
-        }
 
         if (itemDto.getName() != null) {
             item.setName(itemDto.getName());

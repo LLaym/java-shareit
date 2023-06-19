@@ -16,10 +16,11 @@ public class UserDto {
     private Long id;
 
     @NotNull(groups = AddNewUserAction.class, message = "Имя не может быть пустым")
-    @Size(min = 1, max = 64, message = "Имя не может быть длинее 64 символов")
+    @Size(min = 1, max = 256, message = "Имя не может быть длинее 256 символов")
     private String name;
 
-    @NotNull(groups = AddNewUserAction.class, message = "Email не может быть пустым")
     @Email(message = "Email не валидный")
+    @NotNull(groups = AddNewUserAction.class, message = "Email не может быть пустым")
+    @Size(min = 1, max = 512, message = "Email не может быть длинее 512 символов")
     private String email;
 }
