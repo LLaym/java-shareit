@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemDao itemDao;
-    private final ItemMapper itemMapper;
     private final UserDao userDao;
+    private final ItemMapper itemMapper;
 
     @Override
     public ItemDto create(long ownerId, ItemDto itemDto) {
@@ -61,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
             item.setAvailable(itemDto.getAvailable());
         }
 
-        Item itemUpdated = itemDao.update(item);
+        Item itemUpdated = itemDao.save(item);
 
         log.info("Обновлена вещь: {}", itemUpdated);
         return itemMapper.toItemDto(itemUpdated);
@@ -71,19 +71,19 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getAllByOwnerId(long ownerId) {
         throwIfUserNotExist(ownerId);
 
-        List<ItemDto> itemsDtos = itemDao.findAllByOwnerId(ownerId).stream()
+        List<ItemDto> itemsDto = itemDao.findAllByOwnerId(ownerId).stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
 
         log.info("Передан список вещей пользователя с id {}", ownerId);
-        return itemsDtos;
+        return itemsDto;
     }
 
     @Override
     public List<ItemDto> getAllBySubstring(long userId, String substring) {
         throwIfUserNotExist(userId);
 
-        List<ItemDto> itemsDtos = itemDao.findAllBySubstring(substring).stream()
+        List<ItemDto> itemsDtos = itemDao.findAllByNameOrDescriptionContainingIgnoreCase(substring, substring).stream()
                 .filter(Item::getAvailable)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());

@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userDto.getEmail());
         }
 
-        User userUpdated = userDao.update(user);
+        User userUpdated = userDao.save(user);
 
         log.info("Обновлён пользователь: {}", userUpdated);
         return userMapper.toUserDto(userUpdated);
@@ -81,8 +81,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void throwIfEmailExist(String email) {
-        if (userDao.emailExist(email)) {
-            throw new AlreadyExistException("Email " + email + " уже существует");
-        }
+        userDao.findByEmail(email)
+                .orElseThrow(() -> new AlreadyExistException("Email " + email + " уже существует"));
     }
 }
