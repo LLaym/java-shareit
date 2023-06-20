@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookingDto {
     private Long id;
-    private Long itemId;
     private String start;
     private String end;
+    private Long itemId;
+    private Long bookerId;
     private String status;
-    private String booker;
 }
