@@ -29,6 +29,6 @@ public class Item {
     @Column(name = "description", length = 512, nullable = false)
     private String description;
 
-    @Column(name = "available", nullable = false)
+    @Column(name = "is_available", nullable = false)
     private Boolean available;
 }

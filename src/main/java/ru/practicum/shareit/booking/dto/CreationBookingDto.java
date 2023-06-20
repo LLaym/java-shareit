@@ -13,11 +13,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingDto {
-    private Long id;
+public class CreationBookingDto {
     private Long itemId;
     private String start;
     private String end;
-    private String status;
-    private String booker;
 }
