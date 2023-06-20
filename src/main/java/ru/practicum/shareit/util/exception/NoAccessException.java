@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.exception;
+package ru.practicum.shareit.util.exception;
 
 public class NoAccessException extends RuntimeException {
     public NoAccessException(String message) {

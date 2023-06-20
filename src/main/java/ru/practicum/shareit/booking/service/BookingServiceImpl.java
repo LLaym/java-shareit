@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.exception.NoAccessException;
+import ru.practicum.shareit.util.exception.NoAccessException;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -25,8 +25,11 @@ public class BookingServiceImpl implements BookingService {
     private final ItemRepository itemRepository;
     @Override
     public Booking create(Booking booking) {
-        booking.setStatus(BookingStatus.WAITING);
+        if (booking.getItem().getAvailable().equals(false)) {
+            throw new NoAccessException("Вещь недоступна для бронирования");
+        }
 
+        booking.setStatus(BookingStatus.WAITING);
         Booking bookingCreated = repository.save(booking);
 
         log.info("Добавлено новое бронировние: {}", bookingCreated);

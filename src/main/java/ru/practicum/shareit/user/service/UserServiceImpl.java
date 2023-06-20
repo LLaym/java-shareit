@@ -18,8 +18,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User user) {
-        throwIfEmailExist(user.getEmail());
-
+//        throwIfEmailExist(user.getEmail());
         User userCreated = repository.save(user);
 
         log.info("Добавлен новый пользователь: {}", userCreated);
@@ -43,9 +42,9 @@ public class UserServiceImpl implements UserService {
         if (user.getName() != null) {
             userToUpdate.setName(user.getName());
         }
-        if (user.getEmail() != null && !userToUpdate.getEmail().equals(user.getEmail())) {
-            throwIfEmailExist(user.getEmail());
-        }
+//        if (user.getEmail() != null && !userToUpdate.getEmail().equals(user.getEmail())) {
+//            throwIfEmailExist(user.getEmail());
+//        }
         if (user.getEmail() != null) {
             userToUpdate.setEmail(user.getEmail());
         }
@@ -73,9 +72,9 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
-    private void throwIfEmailExist(String email) {
-        if (repository.findByEmail(email).isPresent()) {
-            throw new AlreadyExistException("Email " + email + " уже существует");
-        }
-    }
+//    private void throwIfEmailExist(String email) {
+//        if (repository.findByEmail(email).isPresent()) {
+//            throw new AlreadyExistException("Email " + email + " уже существует");
+//        }
+//    }
 }
