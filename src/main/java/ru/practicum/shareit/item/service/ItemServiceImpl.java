@@ -3,11 +3,10 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.dao.ItemDao;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.dao.UserDao;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.util.List;
@@ -17,12 +16,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private final ItemDao itemDao;
-    private final UserDao userDao;
+    private final ItemRepository repository;
+    private final UserRepository userRepository;
 
     @Override
     public Item create(Item item) {
-        Item itemCreated = itemDao.save(item);
+        Item itemCreated = repository.save(item);
 
         log.info("Добавлена новая вещь: {}", itemCreated);
         return itemCreated;
@@ -32,7 +31,7 @@ public class ItemServiceImpl implements ItemService {
     public Item getById(long userId, long id) {
         throwIfUserNotExist(userId);
 
-        Item item = itemDao.findById(id)
+        Item item = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
 
         log.info("Передана вещь: {}", item);
@@ -43,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
     public Item update(long ownerId, long id, ItemDto itemDto) {
         throwIfUserNotExist(ownerId);
 
-        Item item = itemDao.findById(id)
+        Item item = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
 
         if (item.getOwner().getId() != ownerId) {
@@ -60,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
             item.setAvailable(itemDto.getAvailable());
         }
 
-        Item itemUpdated = itemDao.save(item);
+        Item itemUpdated = repository.save(item);
 
         log.info("Обновлена вещь: {}", itemUpdated);
         return itemUpdated;
@@ -70,7 +69,7 @@ public class ItemServiceImpl implements ItemService {
     public List<Item> getAllByOwnerId(long ownerId) {
         throwIfUserNotExist(ownerId);
 
-        List<Item> items = itemDao.findAllByOwnerId(ownerId);
+        List<Item> items = repository.findAllByOwnerId(ownerId);
 
         log.info("Передан список вещей пользователя с id {}", ownerId);
         return items;
@@ -84,7 +83,7 @@ public class ItemServiceImpl implements ItemService {
             return List.of();
         }
 
-        List<Item> items = itemDao.findAllByNameOrDescriptionContainingIgnoreCase(substring, substring).stream()
+        List<Item> items = repository.findAllByNameOrDescriptionContainingIgnoreCase(substring, substring).stream()
                 .filter(Item::getAvailable)
                 .collect(Collectors.toList());
 
@@ -93,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void throwIfUserNotExist(long userId) {
-        userDao.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 }
