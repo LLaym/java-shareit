@@ -1,28 +1,47 @@
 package ru.practicum.shareit.booking.mapper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreationBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Service
+@RequiredArgsConstructor
 public class BookingMapper {
-    public static BookingDto toBookingDto(Booking booking) {
-        return BookingDto.builder()
-                .id(booking.getId())
-                .itemId(booking.getItem().getId())
-                .start(booking.getStart().toString())
-                .end(booking.getEnd().toString())
-                .build();
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+
+    public BookingDto toBookingDto(Booking booking) {
+        BookingDto bookingDto = new BookingDto();
+
+        bookingDto.setId(booking.getId());
+        bookingDto.setStart(booking.getStart().toString());
+        bookingDto.setEnd(booking.getEnd().toString());
+        bookingDto.setItem(booking.getItem().getId());
+        bookingDto.setBooker(booking.getBooker().getId());
+        bookingDto.setStatus(bookingDto.getStatus());
+
+        return bookingDto;
     }
 
-    public static Booking toBooking(CreationBookingDto creationBookingDto) {
-        return Booking.builder()
-                .start(LocalDateTime.parse(creationBookingDto.getStart()))
-                .end(LocalDateTime.parse(creationBookingDto.getEnd()))
-                .build();
+    public Booking toBooking(Long userId, CreationBookingDto creationBookingDto) {
+        Booking booking = new Booking();
+
+        booking.setBooker(userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " +
+                        userId + " не существует")));
+        booking.setItem(itemRepository.findById(creationBookingDto.getItemId())
+                .orElseThrow(() -> new NotFoundException("Предмет с id " +
+                        creationBookingDto.getItemId() + " не существует")));
+        booking.setStart(LocalDateTime.parse(creationBookingDto.getStart()));
+        booking.setEnd(LocalDateTime.parse(creationBookingDto.getEnd()));
+
+        return booking;
     }
 }
