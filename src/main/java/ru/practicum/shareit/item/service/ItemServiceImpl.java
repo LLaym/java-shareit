@@ -2,10 +2,12 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
@@ -67,9 +69,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getAllByOwnerId(long ownerId) {
-        throwIfUserNotExist(ownerId);
-
-        List<Item> items = repository.findAllByOwnerId(ownerId);
+//        throwIfUserNotExist(ownerId);
+        User user = userRepository.findById(ownerId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + ownerId + " не найден"));
+        List<Item> items = repository.findAllByOwner(user);
 
         log.info("Передан список вещей пользователя с id {}", ownerId);
         return items;

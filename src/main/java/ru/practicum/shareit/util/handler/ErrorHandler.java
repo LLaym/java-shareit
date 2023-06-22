@@ -2,12 +2,14 @@ package ru.practicum.shareit.util.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.util.exception.NoAccessException;
 import ru.practicum.shareit.util.exception.NotFoundException;
+import ru.practicum.shareit.util.exception.ValidationException;
 
 @Slf4j
 @RestControllerAdvice("ru.practicum.shareit")
@@ -22,7 +24,7 @@ public class ErrorHandler {
         return new Error(errorName, errorDescription);
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
+    @ExceptionHandler({MethodArgumentNotValidException.class, ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Error handleValidationException(final Throwable e) {
         String errorName = "Ошибка валидации";
@@ -41,7 +43,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(NoAccessException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public Error handleNoAccessException(final Throwable e) {
         String errorName = "Ошибка доступа";
         String errorDescription = e.getMessage();

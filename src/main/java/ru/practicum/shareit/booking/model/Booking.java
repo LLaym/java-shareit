@@ -1,13 +1,16 @@
 package ru.practicum.shareit.booking.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import ru.practicum.shareit.booking.validation.Available;
+import ru.practicum.shareit.booking.validation.CorrectDates;
+import ru.practicum.shareit.booking.validation.group.CreateAction;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 
 /**

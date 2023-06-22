@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreationBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
@@ -23,9 +25,9 @@ public class BookingMapper {
         bookingDto.setId(booking.getId());
         bookingDto.setStart(booking.getStart().toString());
         bookingDto.setEnd(booking.getEnd().toString());
-        bookingDto.setItem(booking.getItem().getId());
-        bookingDto.setBooker(booking.getBooker().getId());
-        bookingDto.setStatus(bookingDto.getStatus());
+        bookingDto.setItem(ItemMapper.toItemDto(booking.getItem()));
+        bookingDto.setBooker(UserMapper.toUserDto(booking.getBooker()));
+        bookingDto.setStatus(booking.getStatus().toString());
 
         return bookingDto;
     }
