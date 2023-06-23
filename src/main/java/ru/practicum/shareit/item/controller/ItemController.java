@@ -35,7 +35,7 @@ public class ItemController {
     @GetMapping("/{id}")
     public ItemDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
                            @PathVariable @Min(1L) long id) {
-        return ItemMapper.toItemDto(itemService.getById(userId, id));
+        return itemService.getById(userId, id);
     }
 
     @PatchMapping("/{id}")
@@ -47,9 +47,7 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getAllByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
-        return itemService.getAllByOwnerId(ownerId).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        return itemService.getAllByOwnerId(ownerId);
     }
 
     @GetMapping("/search")

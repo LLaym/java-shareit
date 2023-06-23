@@ -23,16 +23,13 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 public class BookingController {
-    private final UserService userService;
-    private final ItemService itemService;
     private final BookingService bookingService;
-    private final BookingMapper bookingMapper;
 
     @PostMapping
     public BookingDto create(@RequestHeader("X-Sharer-User-Id") long userId,
                              @RequestBody @Valid CreationBookingDto creationBookingDto) {
-        Booking booking = bookingMapper.toBooking(userId, creationBookingDto);
-        return bookingMapper.toBookingDto(bookingService.create(booking));
+        Booking booking = BookingMapper.toBooking(userId, creationBookingDto);
+        return BookingMapper.toBookingDto(bookingService.create(booking));
     }
 
     @PatchMapping("/{bookingId}")
@@ -40,20 +37,20 @@ public class BookingController {
                               @PathVariable @Positive Long bookingId,
                               @RequestParam(name = "approved") String approved) {
         Booking booking = bookingService.confirmStatus(ownerId, bookingId, approved);
-        return bookingMapper.toBookingDto(booking);
+        return BookingMapper.toBookingDto(booking);
     }
 
     @GetMapping("/{bookingId}")
     public BookingDto getById(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
                               @PathVariable @Positive Long bookingId) {
-        return bookingMapper.toBookingDto(bookingService.getById(userId, bookingId));
+        return BookingMapper.toBookingDto(bookingService.getById(userId, bookingId));
     }
 
     @GetMapping
     public List<BookingDto> getAllByUser(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
                                    @RequestParam(name = "state", defaultValue = "ALL") String state) {
         return bookingService.getAllByUser(userId, state).stream()
-                .map(bookingMapper::toBookingDto)
+                .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
@@ -61,7 +58,7 @@ public class BookingController {
     public List<BookingDto> getAllByItemOwner(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
                                    @RequestParam(name = "state", defaultValue = "ALL") String state) {
         return bookingService.getAllByItemOwner(userId, state).stream()
-                .map(bookingMapper::toBookingDto)
+                .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 }

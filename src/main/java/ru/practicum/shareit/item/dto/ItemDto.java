@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.item.validation.group.AddNewItemAction;
 
 import javax.validation.constraints.NotNull;
@@ -28,4 +29,6 @@ public class ItemDto {
 
     @NotNull(groups = AddNewItemAction.class, message = "Доступность для шеринга не может быть пустой")
     private Boolean available;
+    private BookingShortDto lastBooking;
+    private BookingShortDto nextBooking;
 }
