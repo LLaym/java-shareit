@@ -4,10 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * TODO Sprint add-bookings.
- */
-
 @Getter
 @Setter
 @NoArgsConstructor
