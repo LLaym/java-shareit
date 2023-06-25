@@ -5,5 +5,5 @@ import lombok.Value;
 @Value
 public class Error {
     String name;
-    String description;
+    String error;
 }

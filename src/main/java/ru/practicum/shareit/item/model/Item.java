@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Data
@@ -31,4 +33,8 @@ public class Item {
 
     @Column(name = "is_available", nullable = false)
     private Boolean available;
+
+    @OneToMany
+    @JoinColumn(name = "item_id")
+    private List<Comment> comments = new ArrayList<>();
 }

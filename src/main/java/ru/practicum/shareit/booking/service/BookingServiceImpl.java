@@ -139,8 +139,8 @@ public class BookingServiceImpl implements BookingService {
         switch (state) {
             case "CURRENT":
                 filteredBookings = bookings.stream()
-                        .filter(booking -> LocalDateTime.now().isBefore(booking.getStart()) ||
-                        LocalDateTime.now().isAfter(booking.getEnd()))
+                        .filter(booking -> LocalDateTime.now().isAfter(booking.getStart()) &&
+                        LocalDateTime.now().isBefore(booking.getEnd()))
                         .collect(Collectors.toList());
                 break;
             case "PAST":

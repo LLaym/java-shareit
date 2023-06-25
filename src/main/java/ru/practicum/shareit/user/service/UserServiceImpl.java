@@ -3,9 +3,9 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.util.exception.AlreadyExistException;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.util.List;
@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
+    private final BookingRepository bookingRepository;
 
     @Override
     public User create(User user) {

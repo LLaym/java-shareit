@@ -2,23 +2,20 @@ package ru.practicum.shareit.item.mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingShortDto;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.item.dto.ExtendedItemDto;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CreationCommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
-
 @Service
-public class ItemMapper {
+public class CommentMapper {
     private static BookingRepository bookingRepository;
 
     @Autowired
-    public ItemMapper(BookingRepository bookingRepository) {
-        ItemMapper.bookingRepository = bookingRepository;
+    public CommentMapper(BookingRepository bookingRepository) {
+        CommentMapper.bookingRepository = bookingRepository;
     }
 
     public static ItemDto toItemDto(Item item) {
@@ -40,19 +37,19 @@ public class ItemMapper {
                 .build();
     }
 
-    public static ExtendedItemDto toExtendedItemDto(Item item) {
-        ExtendedItemDto extendedItemDto = new ExtendedItemDto();
+    public static Comment toComment(CreationCommentDto creationCommentDto) {
+        Comment comment = new Comment();
+        comment.setText(creationCommentDto.getText());
+        return comment;
+    }
 
-        extendedItemDto.setId(item.getId());
-        extendedItemDto.setOwnerId(item.getOwner().getId());
-        extendedItemDto.setName(item.getName());
-        extendedItemDto.setDescription(item.getDescription());
-        extendedItemDto.setAvailable(item.getAvailable());
-        extendedItemDto.setComments(item.getComments().stream()
-                .map(CommentMapper::toCommentDto)
-                .collect(Collectors.toList()));
-
-        return extendedItemDto;
+    public static CommentDto toCommentDto(Comment comment) {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setId(comment.getId());
+        commentDto.setText(comment.getText());
+        commentDto.setAuthorName(comment.getUser().getName());
+        commentDto.setCreated(comment.getCreated());
+        return commentDto;
     }
 
 //    public static ItemExtendedDto toItemExtendedDto(Item item) {
