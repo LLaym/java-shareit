@@ -19,15 +19,16 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
+    private final UserMapper userMapper;
 
     @Transactional
     @Override
     public UserDto create(UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
+        User user = userMapper.toUser(userDto);
         User userCreated = repository.save(user);
 
         log.info("Added new User: {}", userCreated);
-        return UserMapper.toUserDto(userCreated);
+        return userMapper.toUserDto(userCreated);
     }
 
     @Override
@@ -36,13 +37,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
         log.info("Provided User: {}", user);
-        return UserMapper.toUserDto(user);
+        return userMapper.toUserDto(user);
     }
 
     @Transactional
     @Override
     public UserDto update(long id, UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
+        User user = userMapper.toUser(userDto);
         User userToUpdate = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
         User userUpdated = repository.save(userToUpdate);
 
         log.info("Updated User: {}", userUpdated);
-        return UserMapper.toUserDto(userUpdated);
+        return userMapper.toUserDto(userUpdated);
     }
 
     @Transactional
@@ -72,7 +73,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAll() {
         List<UserDto> users = repository.findAll().stream()
-                .map(UserMapper::toUserDto)
+                .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
 
         log.info("Provided all Users list");

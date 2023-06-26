@@ -39,17 +39,20 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final ItemRepository itemRepository;
+    private final BookingMapper bookingMapper;
+    private final CommentMapper commentMapper;
+    private final ItemMapper itemMapper;
 
     @Transactional
     @Override
     public ItemDto create(long ownerId, ItemDto itemDto) {
-        Item item = ItemMapper.toItem(itemDto);
+        Item item = itemMapper.toItem(itemDto);
         item.setOwner(userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("User not found")));
         Item itemCreated = repository.save(item);
 
         log.info("New Item added: {}", itemCreated);
-        return ItemMapper.toItemDto(itemCreated);
+        return itemMapper.toItemDto(itemCreated);
     }
 
     @Override
@@ -59,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item with id " + id + " not found"));
 
-        ExtendedItemDto extendedItemDto = ItemMapper.toExtendedItemDto(item);
+        ExtendedItemDto extendedItemDto = itemMapper.toExtendedItemDto(item);
 
         log.info("Privded Item: {}", item);
         if (!Objects.equals(user.getId(), item.getOwner().getId())) {
@@ -68,12 +71,12 @@ public class ItemServiceImpl implements ItemService {
             BookingShortDto lastBookingDto = bookingRepository.findFirstByItemAndStartBeforeOrderByEndDesc(item, LocalDateTime.now())
                     .filter(booking -> !Objects.equals(booking.getBooker().getId(), user.getId()))
                     .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
-                    .map(BookingMapper::toBookingShortDto)
+                    .map(bookingMapper::toBookingShortDto)
                     .orElse(null);
             BookingShortDto nextBookingDto = bookingRepository.findFirstByItemAndStartAfterOrderByStartAsc(item, LocalDateTime.now())
                     .filter(booking -> !Objects.equals(booking.getBooker().getId(), user.getId()))
                     .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
-                    .map(BookingMapper::toBookingShortDto)
+                    .map(bookingMapper::toBookingShortDto)
                     .orElse(null);
             extendedItemDto.setLastBooking(lastBookingDto);
             extendedItemDto.setNextBooking(nextBookingDto);
@@ -106,7 +109,7 @@ public class ItemServiceImpl implements ItemService {
         Item itemUpdated = repository.save(item);
 
         log.info("Item updated: {}", itemUpdated);
-        return ItemMapper.toItemDto(itemUpdated);
+        return itemMapper.toItemDto(itemUpdated);
     }
 
     @Override
@@ -118,13 +121,13 @@ public class ItemServiceImpl implements ItemService {
         log.info("Provided list of Items of User with id {}", ownerId);
         List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : items) {
-            ItemDto itemDto = ItemMapper.toItemDto(item);
+            ItemDto itemDto = itemMapper.toItemDto(item);
 
             BookingShortDto lastBookingDto = bookingRepository.findFirstByItemAndStartBeforeOrderByEndDesc(item, LocalDateTime.now())
-                    .map(BookingMapper::toBookingShortDto)
+                    .map(bookingMapper::toBookingShortDto)
                     .orElse(null);
             BookingShortDto nextBookingDto = bookingRepository.findFirstByItemAndStartAfterOrderByStartAsc(item, LocalDateTime.now())
-                    .map(BookingMapper::toBookingShortDto)
+                    .map(bookingMapper::toBookingShortDto)
                     .orElse(null);
             itemDto.setLastBooking(lastBookingDto);
             itemDto.setNextBooking(nextBookingDto);
@@ -144,7 +147,7 @@ public class ItemServiceImpl implements ItemService {
 
         List<ItemDto> items = repository.findAllByNameOrDescriptionContainingIgnoreCase(substring, substring).stream()
                 .filter(Item::getAvailable)
-                .map(ItemMapper::toItemDto)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
 
         log.info("Provided list of Items by querry {}", substring);
@@ -154,7 +157,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public CommentDto createComment(long userId, long itemId, CreationCommentDto creationCommentDto) {
-        Comment comment = CommentMapper.toComment(creationCommentDto);
+        Comment comment = commentMapper.toComment(creationCommentDto);
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
         Item item = itemRepository.findById(itemId)
@@ -167,6 +170,6 @@ public class ItemServiceImpl implements ItemService {
         comment.setUser(booker);
         comment.setCreated(LocalDateTime.now());
 
-        return CommentMapper.toCommentDto(commentRepository.save(comment));
+        return commentMapper.toCommentDto(commentRepository.save(comment));
     }
 }

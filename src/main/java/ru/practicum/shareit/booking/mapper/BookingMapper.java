@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.mapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
@@ -15,29 +15,26 @@ import ru.practicum.shareit.util.exception.NotFoundException;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class BookingMapper {
-    private static ItemRepository itemRepository;
-    private static UserRepository userRepository;
-
-    @Autowired
-    public BookingMapper(ItemRepository itemRepository, UserRepository userRepository) {
-        BookingMapper.itemRepository = itemRepository;
-        BookingMapper.userRepository = userRepository;
-    }
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
 
 
-    public static BookingDto toBookingDto(Booking booking) {
+    public BookingDto toBookingDto(Booking booking) {
         BookingDto bookingDto = new BookingDto();
         bookingDto.setId(booking.getId());
         bookingDto.setStart(booking.getStart().toString());
         bookingDto.setEnd(booking.getEnd().toString());
-        bookingDto.setItem(ItemMapper.toItemDto(booking.getItem()));
-        bookingDto.setBooker(UserMapper.toUserDto(booking.getBooker()));
+        bookingDto.setItem(itemMapper.toItemDto(booking.getItem()));
+        bookingDto.setBooker(userMapper.toUserDto(booking.getBooker()));
         bookingDto.setStatus(booking.getStatus().toString());
         return bookingDto;
     }
 
-    public static Booking toBooking(Long userId, CreationBookingDto creationBookingDto) {
+    public Booking toBooking(Long userId, CreationBookingDto creationBookingDto) {
         Booking booking = new Booking();
         booking.setBooker(userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id " +
@@ -50,7 +47,7 @@ public class BookingMapper {
         return booking;
     }
 
-    public static BookingShortDto toBookingShortDto(Booking booking) {
+    public BookingShortDto toBookingShortDto(Booking booking) {
         BookingShortDto bookingShortDto = new BookingShortDto();
         bookingShortDto.setId(booking.getId());
         bookingShortDto.setBookerId(booking.getBooker().getId());

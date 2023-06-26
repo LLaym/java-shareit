@@ -33,11 +33,12 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository repository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingMapper bookingMapper;
 
     @Transactional
     @Override
     public BookingDto create(long userId, CreationBookingDto creationBookingDto) {
-        Booking booking = BookingMapper.toBooking(userId, creationBookingDto);
+        Booking booking = bookingMapper.toBooking(userId, creationBookingDto);
 
         validateBooking(booking);
 
@@ -45,7 +46,7 @@ public class BookingServiceImpl implements BookingService {
         Booking bookingCreated = repository.save(booking);
 
         log.info("Booking created: {}", bookingCreated);
-        return BookingMapper.toBookingDto(bookingCreated);
+        return bookingMapper.toBookingDto(bookingCreated);
     }
 
     @Transactional
@@ -72,7 +73,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Already approved");
         }
 
-        return BookingMapper.toBookingDto(booking);
+        return bookingMapper.toBookingDto(booking);
     }
 
     @Override
@@ -84,7 +85,7 @@ public class BookingServiceImpl implements BookingService {
         Long bookingItemOwnerId = booking.getItem().getOwner().getId();
 
         if (userId == bookingOwnerId || userId == bookingItemOwnerId) {
-            return BookingMapper.toBookingDto(booking);
+            return bookingMapper.toBookingDto(booking);
         } else {
             throw new NoAccessException("User with id: " + userId + " does not have permission to booking");
         }
@@ -99,11 +100,11 @@ public class BookingServiceImpl implements BookingService {
 
         if (state.isEmpty()) {
             return bookings.stream()
-                    .map(BookingMapper::toBookingDto)
+                    .map(bookingMapper::toBookingDto)
                     .collect(Collectors.toList());
         } else {
             return filterBookings(state, bookings).stream()
-                    .map(BookingMapper::toBookingDto)
+                    .map(bookingMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
     }
@@ -124,11 +125,11 @@ public class BookingServiceImpl implements BookingService {
 
         if (state.isEmpty()) {
             return bookings.stream()
-                    .map(BookingMapper::toBookingDto)
+                    .map(bookingMapper::toBookingDto)
                     .collect(Collectors.toList());
         } else {
             return filterBookings(state, bookings).stream()
-                    .map(BookingMapper::toBookingDto)
+                    .map(bookingMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
     }

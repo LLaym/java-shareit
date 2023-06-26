@@ -7,13 +7,13 @@ import ru.practicum.shareit.item.model.Comment;
 
 @Service
 public class CommentMapper {
-    public static Comment toComment(CreationCommentDto creationCommentDto) {
+    public Comment toComment(CreationCommentDto creationCommentDto) {
         Comment comment = new Comment();
         comment.setText(creationCommentDto.getText());
         return comment;
     }
 
-    public static CommentDto toCommentDto(Comment comment) {
+    public CommentDto toCommentDto(Comment comment) {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(comment.getId());
         commentDto.setText(comment.getText());
