@@ -1,18 +1,24 @@
 # :atom: ShareIt
-**ShareIt** - сервис для шеринга (share) вещей.
-## :bulb: Использование
-**Основная функция сервиса - с его помощью пользователи могут делиться вещами.** Сервис даёт пользователям возможность
-рассказывать какими вещами они готовы поделиться, а так же находить нужную вещь и брать её в аренду на какое-то время.
-### API для работы с пользователями
-- ```POST /users``` - добавление нового пользователя
-- ```GET /users/{id}``` - получение информации о пользователе по его id
-- ```PATCH /users/{id}``` - изменение данных пользователя по его id
-- ```DELETE /users/{id}``` - удаление пользователя по его id
-- ```GET /users``` - получение информации о всех пользователях
-### API для работы с вещами
-- ```POST /items``` - добавление новой вещи (привязывается к пользователю)
-- ```PATCH /items/{id}``` - изменение данных о вещи по её id (возможно только для хозяина вещи)
-- ```GET /items/{id}``` - получение информации о вещи по её id (возможно для всех пользователей сервиса)
-- ```GET /items``` - получение информации о всех вещах пользователя (возможно только для хозяина вещи)
-- ```GET /items/search?text={text}``` - поиск вещи по ключевому слову в названии и описании (возможно только для 
-пользователя сервиса)
+**ShareIt** - sharing service.
+## :bulb: How to use
+**The main function of the service is to allow users to share belongings.** 
+The service enables users to showcase the items they are willing to share, as well as search for the desired item and rent it for a certain period of time.
+### User endpoints
+- ```POST /users``` - create user
+- ```GET /users/{id}``` - get user info
+- ```PATCH /users/{id}``` - edit user
+- ```DELETE /users/{id}``` - delete user
+- ```GET /users``` - show all users
+### Item endpoints
+- ```POST /items``` - create item
+- ```PATCH /items/{id}``` - edit item
+- ```GET /items/{id}``` - get item info
+- ```GET /items``` - get all items info
+- ```GET /items/search?text={text}``` - find item by name or description
+- ```POST /items/{itemId}/comment``` - post comment to item
+### Booking endpoints
+- ```POST /bookings``` - create booking
+- ```GET /bookings``` - get all bookings by user
+- ```GET /bookings/owner``` - get all bookings by item owner
+- ```GET /bookings/{bookingid}}``` - get booking info
+- ```PATCH /bookings/{bookingid}}``` - confirm booking status by item owner
