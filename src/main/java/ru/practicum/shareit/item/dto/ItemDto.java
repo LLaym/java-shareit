@@ -16,15 +16,15 @@ public class ItemDto {
     private Long id;
     private Long ownerId;
 
-    @NotNull(groups = AddNewItemAction.class, message = "Название не может быть пустым")
-    @Size(min = 1, max = 256, message = "Название не может быть длинее 256 символов")
+    @NotNull(groups = AddNewItemAction.class, message = "Name should not be null")
+    @Size(min = 1, max = 256, message = "Name length should not be longer than 256 characters")
     private String name;
 
-    @NotNull(groups = AddNewItemAction.class, message = "Описание не может быть пустым")
-    @Size(min = 1, max = 512, message = "Описание не может быть длинее 512 символов")
+    @NotNull(groups = AddNewItemAction.class, message = "Description should not be null")
+    @Size(min = 1, max = 512, message = "Description length should not be longer than 512 characters")
     private String description;
 
-    @NotNull(groups = AddNewItemAction.class, message = "Доступность для шеринга не может быть пустой")
+    @NotNull(groups = AddNewItemAction.class, message = "Sharing availability should not be null")
     private Boolean available;
     private BookingShortDto lastBooking;
     private BookingShortDto nextBooking;

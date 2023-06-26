@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
@@ -13,12 +12,12 @@ import javax.validation.constraints.Positive;
 @Setter
 @NoArgsConstructor
 public class CreationBookingDto {
-    @Positive
+    @Positive(message = "Item id should be positive")
     private Long itemId;
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Start time cannot be null")
+    @NotBlank(message = "Start time cannot be empty")
     private String start;
-    @NotNull
-    @NotEmpty
+    @NotNull(message = "End time cannot be null")
+    @NotBlank(message = "End time cannot be empty")
     private String end;
 }

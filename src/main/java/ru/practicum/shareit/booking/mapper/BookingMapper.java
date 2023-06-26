@@ -40,11 +40,11 @@ public class BookingMapper {
     public static Booking toBooking(Long userId, CreationBookingDto creationBookingDto) {
         Booking booking = new Booking();
         booking.setBooker(userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " +
-                        userId + " не существует")));
+                .orElseThrow(() -> new NotFoundException("User with id " +
+                        userId + " does not exist")));
         booking.setItem(itemRepository.findById(creationBookingDto.getItemId())
-                .orElseThrow(() -> new NotFoundException("Предмет с id " +
-                        creationBookingDto.getItemId() + " не существует")));
+                .orElseThrow(() -> new NotFoundException("Item with id " +
+                        creationBookingDto.getItemId() + " does not exist")));
         booking.setStart(LocalDateTime.parse(creationBookingDto.getStart()));
         booking.setEnd(LocalDateTime.parse(creationBookingDto.getEnd()));
         return booking;

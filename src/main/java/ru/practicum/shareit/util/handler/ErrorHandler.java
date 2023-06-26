@@ -17,36 +17,36 @@ public class ErrorHandler {
     @ExceptionHandler({NotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Error handleNotFoundException(final Throwable e) {
-        String errorName = "Ошибка поиска";
+        String errorName = "Search error";
         String errorDescription = e.getMessage();
-        log.warn("Произошла ошибка: {}. Описание: {}", errorName, errorDescription);
+        log.warn("{}. {}", errorName, errorDescription);
         return new Error(errorName, errorDescription);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class, ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Error handleValidationException(final Throwable e) {
-        String errorName = "Ошибка валидации";
+        String errorName = "Validation error";
         String errorDescription = e.getMessage();
-        log.warn("Произошла ошибка: {}. Описание: {}", errorName, errorDescription);
+        log.warn("{}. {}", errorName, errorDescription);
         return new Error(errorName, errorDescription);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Error handleThrowable(final Throwable e) {
-        String errorName = "Непредвиденная ошибка";
+        String errorName = "Unexpected error";
         String errorDescription = e.getMessage();
-        log.warn("Произошла ошибка: {}. Описание: {}", errorName, errorDescription);
+        log.warn("{}. {}", errorName, errorDescription);
         return new Error(errorName, errorDescription);
     }
 
     @ExceptionHandler(NoAccessException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Error handleNoAccessException(final Throwable e) {
-        String errorName = "Ошибка доступа";
+        String errorName = "Access error";
         String errorDescription = e.getMessage();
-        log.warn("Произошла ошибка: {}. Описание: {}", errorName, errorDescription);
+        log.warn("{}. {}", errorName, errorDescription);
         return new Error(errorName, errorDescription);
     }
 }

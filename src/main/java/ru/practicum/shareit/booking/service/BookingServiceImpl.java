@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreationBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -27,79 +28,38 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository repository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
-    private static List<Booking> filterBookings(String state, List<Booking> bookings) {
-        switch (state) {
-            case "CURRENT":
-                return bookings.stream()
-                        .filter(booking -> LocalDateTime.now().isAfter(booking.getStart()) &&
-                                LocalDateTime.now().isBefore(booking.getEnd()))
-                        .collect(Collectors.toList());
-            case "PAST":
-                return bookings.stream()
-                        .filter(booking -> LocalDateTime.now().isAfter(booking.getEnd()))
-                        .collect(Collectors.toList());
-            case "FUTURE":
-                return bookings.stream()
-                        .filter(booking -> LocalDateTime.now().isBefore(booking.getStart()) || LocalDateTime.now().isBefore(booking.getEnd()))
-                        .collect(Collectors.toList());
-            case "WAITING":
-                return bookings.stream()
-                        .filter(booking -> booking.getStatus() == BookingStatus.WAITING)
-                        .collect(Collectors.toList());
-            case "REJECTED":
-                return bookings.stream()
-                        .filter(booking -> booking.getStatus() == BookingStatus.REJECTED)
-                        .collect(Collectors.toList());
-            case "ALL":
-                return bookings;
-            default:
-                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
-        }
-    }
-
+    @Transactional
     @Override
     public BookingDto create(long userId, CreationBookingDto creationBookingDto) {
         Booking booking = BookingMapper.toBooking(userId, creationBookingDto);
 
-        if (booking.getItem().getAvailable().equals(false)) {
-            throw new ValidationException("Item is not available for booking");
-        }
-        if (booking.getEnd().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("End date not in future");
-        }
-        if (booking.getEnd().isBefore(booking.getStart())) {
-            throw new ValidationException("End date is before start");
-        }
-        if (booking.getStart().isEqual(booking.getEnd())) {
-            throw new ValidationException("Start date is equal to end date");
-        }
-        if (booking.getStart().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Start date is in the past");
-        }
-        if (Objects.equals(booking.getBooker().getId(), booking.getItem().getOwner().getId())) {
-            throw new NotFoundException("You are owner of item");
-        }
+        validateBooking(booking);
 
         booking.setStatus(BookingStatus.WAITING);
         Booking bookingCreated = repository.save(booking);
 
-        log.info("Добавлено новое бронировние: {}", bookingCreated);
+        log.info("Booking created: {}", bookingCreated);
         return BookingMapper.toBookingDto(bookingCreated);
     }
 
+    @Transactional
     @Override
     public BookingDto confirmStatus(long ownerId, long bookingId, String approved) {
         Booking booking = repository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("Бронирование с id " + bookingId + " не найдено"));
-        Long itemOwnerId = booking.getItem().getOwner().getId();
+                .orElseThrow(() -> new NotFoundException("Booking with id " + bookingId + " not found"));
+        User user = userRepository.findById(ownerId)
+                .orElseThrow(() -> new NotFoundException("User with id " + ownerId +" not found"));
+        long bookingItemOwnerId = booking.getItem().getOwner().getId();
+        long userId = user.getId();
 
-        if (ownerId != itemOwnerId) {
-            throw new NoAccessException("Пользователь с id " + ownerId + " не является владельцем вещи с id " + itemOwnerId);
+        if (userId != bookingItemOwnerId) {
+            throw new NoAccessException("User with id " + ownerId + " is not owner of Item with id " + bookingItemOwnerId);
         }
 
         if (approved.equals("true") && !booking.getStatus().equals(BookingStatus.APPROVED)) {
@@ -118,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto getById(long userId, long bookingId) {
         Booking booking = repository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("Бронирование с id " + bookingId + " не найдено"));
+                .orElseThrow(() -> new NotFoundException("Booking with id " + bookingId + " not found"));
 
         Long bookingOwnerId = booking.getBooker().getId();
         Long bookingItemOwnerId = booking.getItem().getOwner().getId();
@@ -126,7 +86,7 @@ public class BookingServiceImpl implements BookingService {
         if (userId == bookingOwnerId || userId == bookingItemOwnerId) {
             return BookingMapper.toBookingDto(booking);
         } else {
-            throw new NoAccessException("Пользователь с id: " + userId + " не имеет доступа к букингу");
+            throw new NoAccessException("User with id: " + userId + " does not have permission to booking");
         }
     }
 
@@ -170,6 +130,57 @@ public class BookingServiceImpl implements BookingService {
             return filterBookings(state, bookings).stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
+        }
+    }
+
+    private List<Booking> filterBookings(String state, List<Booking> bookings) {
+        switch (state) {
+            case "CURRENT":
+                return bookings.stream()
+                        .filter(booking -> LocalDateTime.now().isAfter(booking.getStart()) &&
+                                LocalDateTime.now().isBefore(booking.getEnd()))
+                        .collect(Collectors.toList());
+            case "PAST":
+                return bookings.stream()
+                        .filter(booking -> LocalDateTime.now().isAfter(booking.getEnd()))
+                        .collect(Collectors.toList());
+            case "FUTURE":
+                return bookings.stream()
+                        .filter(booking -> LocalDateTime.now().isBefore(booking.getStart()) || LocalDateTime.now().isBefore(booking.getEnd()))
+                        .collect(Collectors.toList());
+            case "WAITING":
+                return bookings.stream()
+                        .filter(booking -> booking.getStatus() == BookingStatus.WAITING)
+                        .collect(Collectors.toList());
+            case "REJECTED":
+                return bookings.stream()
+                        .filter(booking -> booking.getStatus() == BookingStatus.REJECTED)
+                        .collect(Collectors.toList());
+            case "ALL":
+                return bookings;
+            default:
+                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
+        }
+    }
+
+    private void validateBooking(Booking booking) {
+        if (booking.getItem().getAvailable().equals(false)) {
+            throw new ValidationException("Item is not available for booking");
+        }
+        if (booking.getEnd().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("End date not in future");
+        }
+        if (booking.getEnd().isBefore(booking.getStart())) {
+            throw new ValidationException("End date is before start");
+        }
+        if (booking.getStart().isEqual(booking.getEnd())) {
+            throw new ValidationException("Start date is equal to end date");
+        }
+        if (booking.getStart().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Start date is in the past");
+        }
+        if (Objects.equals(booking.getBooker().getId(), booking.getItem().getOwner().getId())) {
+            throw new NotFoundException("You are owner of item");
         }
     }
 }

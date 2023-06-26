@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -15,32 +16,35 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
+    @Transactional
     @Override
     public UserDto create(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         User userCreated = repository.save(user);
 
-        log.info("Добавлен новый пользователь: {}", userCreated);
+        log.info("Added new User: {}", userCreated);
         return UserMapper.toUserDto(userCreated);
     }
 
     @Override
     public UserDto getById(long id) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
-        log.info("Передан пользователь: {}", user);
+        log.info("Provided User: {}", user);
         return UserMapper.toUserDto(user);
     }
 
+    @Transactional
     @Override
     public UserDto update(long id, UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         User userToUpdate = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
         if (user.getName() != null) {
             userToUpdate.setName(user.getName());
@@ -51,17 +55,18 @@ public class UserServiceImpl implements UserService {
 
         User userUpdated = repository.save(userToUpdate);
 
-        log.info("Обновлён пользователь: {}", userUpdated);
+        log.info("Updated User: {}", userUpdated);
         return UserMapper.toUserDto(userUpdated);
     }
 
+    @Transactional
     @Override
     public void deleteById(long id) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
         repository.deleteById(id);
-        log.info("Удалён пользователь: {}", user);
+        log.info("Deleted User: {}", user);
     }
 
     @Override
@@ -70,7 +75,7 @@ public class UserServiceImpl implements UserService {
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
 
-        log.info("Передан список всех пользователей");
+        log.info("Provided all Users list");
         return users;
     }
 }

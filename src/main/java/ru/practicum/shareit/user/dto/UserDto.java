@@ -15,12 +15,12 @@ import javax.validation.constraints.Size;
 public class UserDto {
     private Long id;
 
-    @NotNull(groups = AddNewUserAction.class, message = "Имя не может быть пустым")
-    @Size(min = 1, max = 256, message = "Имя не может быть длинее 256 символов")
+    @NotNull(groups = AddNewUserAction.class, message = "Name should not be null")
+    @Size(min = 1, max = 256, message = "Name length should not be longer than 256 characters")
     private String name;
 
-    @Email(message = "Email не валидный")
-    @NotNull(groups = AddNewUserAction.class, message = "Email не может быть пустым")
-    @Size(min = 1, max = 512, message = "Email не может быть длинее 512 символов")
+    @Email(message = "Email not valid")
+    @NotNull(groups = AddNewUserAction.class, message = "Email should not be null")
+    @Size(min = 1, max = 512, message = "Email length should not be longer than 512 characters")
     private String email;
 }
