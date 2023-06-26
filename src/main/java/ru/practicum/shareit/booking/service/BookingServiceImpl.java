@@ -54,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = repository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking with id " + bookingId + " not found"));
         User user = userRepository.findById(ownerId)
-                .orElseThrow(() -> new NotFoundException("User with id " + ownerId +" not found"));
+                .orElseThrow(() -> new NotFoundException("User with id " + ownerId + " not found"));
         long bookingItemOwnerId = booking.getItem().getOwner().getId();
         long userId = user.getId();
 
