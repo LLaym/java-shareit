@@ -68,14 +68,16 @@ public class ItemServiceImpl implements ItemService {
         if (!Objects.equals(user.getId(), item.getOwner().getId())) {
             return extendedItemDto;
         } else {
-            BookingShortDto lastBookingDto = bookingRepository.findFirstByItemAndStartBeforeOrderByEndDesc(item, LocalDateTime.now())
-                    .filter(booking -> !Objects.equals(booking.getBooker().getId(), user.getId()))
-                    .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
+            BookingShortDto lastBookingDto
+                    = bookingRepository.findFirstByItemAndStartBeforeAndStatusNotOrderByEndDesc(item,
+                            LocalDateTime.now(),
+                            BookingStatus.REJECTED)
                     .map(bookingMapper::toBookingShortDto)
                     .orElse(null);
-            BookingShortDto nextBookingDto = bookingRepository.findFirstByItemAndStartAfterOrderByStartAsc(item, LocalDateTime.now())
-                    .filter(booking -> !Objects.equals(booking.getBooker().getId(), user.getId()))
-                    .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
+            BookingShortDto nextBookingDto
+                    = bookingRepository.findFirstByItemAndStartAfterAndStatusNotOrderByStartAsc(item,
+                            LocalDateTime.now(),
+                            BookingStatus.REJECTED)
                     .map(bookingMapper::toBookingShortDto)
                     .orElse(null);
             extendedItemDto.setLastBooking(lastBookingDto);
@@ -123,10 +125,16 @@ public class ItemServiceImpl implements ItemService {
         for (Item item : items) {
             ItemDto itemDto = itemMapper.toItemDto(item);
 
-            BookingShortDto lastBookingDto = bookingRepository.findFirstByItemAndStartBeforeOrderByEndDesc(item, LocalDateTime.now())
+            BookingShortDto lastBookingDto
+                    = bookingRepository.findFirstByItemAndStartBeforeAndStatusNotOrderByEndDesc(item,
+                            LocalDateTime.now(),
+                            BookingStatus.REJECTED)
                     .map(bookingMapper::toBookingShortDto)
                     .orElse(null);
-            BookingShortDto nextBookingDto = bookingRepository.findFirstByItemAndStartAfterOrderByStartAsc(item, LocalDateTime.now())
+            BookingShortDto nextBookingDto
+                    = bookingRepository.findFirstByItemAndStartAfterAndStatusNotOrderByStartAsc(item,
+                            LocalDateTime.now(),
+                            BookingStatus.REJECTED)
                     .map(bookingMapper::toBookingShortDto)
                     .orElse(null);
             itemDto.setLastBooking(lastBookingDto);
@@ -163,7 +171,10 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item with id " + itemId + " not found"));
 
-        bookingRepository.findFirstByBookerAndItemAndStatusAndEndBefore(booker, item, BookingStatus.APPROVED, LocalDateTime.now())
+        bookingRepository.findFirstByBookerAndItemAndStatusAndEndBefore(booker,
+                        item,
+                        BookingStatus.APPROVED,
+                        LocalDateTime.now())
                 .orElseThrow(() -> new ValidationException("Booking not found"));
 
         comment.setItem(item);
