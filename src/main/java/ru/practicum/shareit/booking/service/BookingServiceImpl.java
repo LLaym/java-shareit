@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static ru.practicum.shareit.booking.model.BookingStatus.WAITING;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,10 +41,14 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto create(long userId, CreationBookingDto creationBookingDto) {
         Booking booking = bookingMapper.toBooking(userId, creationBookingDto);
+        if (booking.getItem().getAvailable().equals(false)) {
+            throw new ValidationException("Item is not available for booking");
+        }
+        if (Objects.equals(booking.getBooker().getId(), booking.getItem().getOwner().getId())) {
+            throw new NotFoundException("You are owner of item");
+        }
 
-        validateBooking(booking);
-
-        booking.setStatus(BookingStatus.WAITING);
+        booking.setStatus(WAITING);
         Booking bookingCreated = repository.save(booking);
 
         log.info("Booking created: {}", bookingCreated);
@@ -151,7 +157,7 @@ public class BookingServiceImpl implements BookingService {
                         .collect(Collectors.toList());
             case "WAITING":
                 return bookings.stream()
-                        .filter(booking -> booking.getStatus() == BookingStatus.WAITING)
+                        .filter(booking -> booking.getStatus() == WAITING)
                         .collect(Collectors.toList());
             case "REJECTED":
                 return bookings.stream()
@@ -161,27 +167,6 @@ public class BookingServiceImpl implements BookingService {
                 return bookings;
             default:
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
-        }
-    }
-
-    private void validateBooking(Booking booking) {
-        if (booking.getItem().getAvailable().equals(false)) {
-            throw new ValidationException("Item is not available for booking");
-        }
-        if (booking.getEnd().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("End date not in future");
-        }
-        if (booking.getEnd().isBefore(booking.getStart())) {
-            throw new ValidationException("End date is before start");
-        }
-        if (booking.getStart().isEqual(booking.getEnd())) {
-            throw new ValidationException("Start date is equal to end date");
-        }
-        if (booking.getStart().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Start date is in the past");
-        }
-        if (Objects.equals(booking.getBooker().getId(), booking.getItem().getOwner().getId())) {
-            throw new NotFoundException("You are owner of item");
         }
     }
 }
