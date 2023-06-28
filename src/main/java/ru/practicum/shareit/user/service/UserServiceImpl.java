@@ -3,11 +3,11 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.dao.UserDao;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.util.exception.AlreadyExistException;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.util.List;
@@ -16,73 +16,67 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
-    private final UserDao userDao;
+    private final UserRepository repository;
     private final UserMapper userMapper;
 
+    @Transactional
     @Override
     public UserDto create(UserDto userDto) {
-        throwIfEmailExist(userDto.getEmail());
-
         User user = userMapper.toUser(userDto);
-        User userCreated = userDao.save(user);
+        User userCreated = repository.save(user);
 
-        log.info("Добавлен новый пользователь: {}", userCreated);
+        log.info("Added new User: {}", userCreated);
         return userMapper.toUserDto(userCreated);
     }
 
     @Override
     public UserDto getById(long id) {
-        User user = userDao.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+        User user = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
-        log.info("Передан пользователь: {}", user);
+        log.info("Provided User: {}", user);
         return userMapper.toUserDto(user);
     }
 
+    @Transactional
     @Override
     public UserDto update(long id, UserDto userDto) {
-        User user = userDao.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+        User user = userMapper.toUser(userDto);
+        User userToUpdate = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
-        if (userDto.getName() != null) {
-            user.setName(userDto.getName());
+        if (user.getName() != null) {
+            userToUpdate.setName(user.getName());
         }
-        if (userDto.getEmail() != null && !user.getEmail().equals(userDto.getEmail())) {
-            throwIfEmailExist(userDto.getEmail());
-        }
-        if (userDto.getEmail() != null) {
-            user.setEmail(userDto.getEmail());
+        if (user.getEmail() != null) {
+            userToUpdate.setEmail(user.getEmail());
         }
 
-        User userUpdated = userDao.update(user);
+        User userUpdated = repository.save(userToUpdate);
 
-        log.info("Обновлён пользователь: {}", userUpdated);
+        log.info("Updated User: {}", userUpdated);
         return userMapper.toUserDto(userUpdated);
     }
 
+    @Transactional
     @Override
     public void deleteById(long id) {
-        User user = userDao.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+        User user = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
-        userDao.deleteById(id);
-        log.info("Удалён пользователь: {}", user);
+        repository.deleteById(id);
+        log.info("Deleted User: {}", user);
     }
 
     @Override
     public List<UserDto> getAll() {
-        List<UserDto> usersDtos = userDao.findAll().stream()
+        List<UserDto> users = repository.findAll().stream()
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
 
-        log.info("Передан список всех пользователей");
-        return usersDtos;
-    }
-
-    private void throwIfEmailExist(String email) {
-        if (userDao.emailExist(email)) {
-            throw new AlreadyExistException("Email " + email + " уже существует");
-        }
+        log.info("Provided all Users list");
+        return users;
     }
 }
