@@ -50,7 +50,7 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Sort sort = Sort.by("created").descending();
-        PageRequest pageRequest = PageRequest.of(from, size, sort);
+        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
         return requestRepository.findAll(pageRequest).stream()
                 .filter(request -> request.getRequestor().getId() != userId)

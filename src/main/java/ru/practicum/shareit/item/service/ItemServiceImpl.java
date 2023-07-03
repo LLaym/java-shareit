@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
@@ -123,10 +125,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllByOwnerId(long ownerId) {
+    public List<ItemDto> getAllByOwnerId(long ownerId, int from, int size) {
         User user = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("User with id " + ownerId + " not found"));
-        List<Item> items = repository.findAllByOwner(user);
+
+        Sort sort = Sort.unsorted();
+        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
+
+        List<Item> items = repository.findAllByOwner(user, pageRequest);
 
         log.info("Provided list of Items of User with id {}", ownerId);
         List<ItemDto> itemDtos = new ArrayList<>();
@@ -153,7 +159,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllBySubstring(long userId, String substring) {
+    public List<ItemDto> getAllBySubstring(long userId, String substring, int from, int size) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
 
@@ -161,7 +167,10 @@ public class ItemServiceImpl implements ItemService {
             return List.of();
         }
 
-        List<ItemDto> items = repository.findAllByNameOrDescriptionContainingIgnoreCase(substring, substring).stream()
+        Sort sort = Sort.unsorted();
+        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
+
+        List<ItemDto> items = repository.findAllByNameOrDescriptionContainingIgnoreCase(substring, substring, pageRequest).stream()
                 .filter(Item::getAvailable)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());

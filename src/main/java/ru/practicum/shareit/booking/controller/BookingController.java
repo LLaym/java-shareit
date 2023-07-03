@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreationBookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.util.exception.ValidationException;
 
 import javax.validation.constraints.Positive;
 import java.util.List;
@@ -37,13 +38,23 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllByUser(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
-                                         @RequestParam(name = "state", defaultValue = "ALL") String state) {
-        return bookingService.getAllByUser(userId, state);
+                                         @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                         @RequestParam(defaultValue = "0") int from,
+                                         @RequestParam(defaultValue = "10") int size) {
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Wrong params");
+        }
+        return bookingService.getAllByUser(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllByItemOwner(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
-                                              @RequestParam(name = "state", defaultValue = "ALL") String state) {
-        return bookingService.getAllByItemOwner(userId, state);
+                                              @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                              @RequestParam(defaultValue = "0") int from,
+                                              @RequestParam(defaultValue = "10") int size) {
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Wrong params");
+        }
+        return bookingService.getAllByItemOwner(userId, state, from, size);
     }
 }

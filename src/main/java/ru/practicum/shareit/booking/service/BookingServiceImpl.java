@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,11 +99,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByUser(long userId, String state) {
-        User bookingsOwner = userRepository.findById(userId)
+    public List<BookingDto> getAllByUser(long userId, String state, int from, int size) {
+        User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Sort sort = Sort.by("start").descending();
+        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
+
         List<Booking> bookings =
-                repository.findAllByBooker(bookingsOwner, Sort.by(Sort.Direction.DESC, "start"));
+                repository.findAllByBooker(booker, pageRequest);
 
         if (state.isEmpty()) {
             return bookings.stream()
@@ -116,18 +121,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByItemOwner(long userId, String state) {
-        List<Booking> bookings = new ArrayList<>();
+    public List<BookingDto> getAllByItemOwner(long userId, String state, int from, int size) {
         User itemsOwner = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        List<Item> items = itemRepository.findAllByOwner(itemsOwner);
+        Sort sort = Sort.by("start").descending();
+        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
-        for (Item item : items) {
-            bookings.addAll(repository.findAllByItem(item));
-        }
-
-        bookings.sort((booking1, booking2) -> booking2.getStart().compareTo(booking1.getStart()));
+        List<Booking> bookings =
+                repository.findAllByItemOwner(itemsOwner, pageRequest);
 
         if (state.isEmpty()) {
             return bookings.stream()
