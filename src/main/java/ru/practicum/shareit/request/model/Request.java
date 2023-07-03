@@ -2,6 +2,7 @@ package ru.practicum.shareit.request.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -15,7 +16,7 @@ import java.util.List;
 @Getter @Setter
 @Entity
 @Table(name = "requests")
-public class Request implements Comparable<Request>{
+public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,11 +33,5 @@ public class Request implements Comparable<Request>{
 
     @OneToMany
     @JoinColumn(name = "request_id")
-    private List<RequestAnswer> answers = new ArrayList<>();
-
-    @Override
-    public int compareTo(Request request) {
-        // compare with created time
-        return this.created.compareTo(request.getCreated());
-    }
+    private List<Item> items = new ArrayList<>();
 }

@@ -18,6 +18,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.util.exception.NotFoundException;
@@ -38,6 +39,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final RequestRepository requestRepository;
     private final ItemRepository itemRepository;
     private final BookingMapper bookingMapper;
     private final CommentMapper commentMapper;
@@ -49,6 +51,12 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemMapper.toItem(itemDto);
         item.setOwner(userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("User not found")));
+
+        if (itemDto.getRequestId() != null) {
+            item.setRequest(requestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Request not found")));
+        }
+
         Item itemCreated = repository.save(item);
 
         log.info("New Item added: {}", itemCreated);
