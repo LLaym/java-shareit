@@ -1,4 +1,4 @@
-spring:
+ymlspring:
   jpa:
     properties:
       hibernate:
