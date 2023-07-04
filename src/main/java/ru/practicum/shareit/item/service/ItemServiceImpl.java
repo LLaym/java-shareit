@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreationCommentDto;
-import ru.practicum.shareit.item.dto.ExtendedItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -66,17 +65,17 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ExtendedItemDto getById(long userId, long id) {
+    public ItemDto getById(long userId, long id) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
         Item item = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item with id " + id + " not found"));
 
-        ExtendedItemDto extendedItemDto = itemMapper.toExtendedItemDto(item);
+        ItemDto itemDto = itemMapper.toItemDto(item);
 
         log.info("Privded Item: {}", item);
         if (!Objects.equals(user.getId(), item.getOwner().getId())) {
-            return extendedItemDto;
+            return itemDto;
         } else {
             BookingShortDto lastBookingDto
                     = bookingRepository.findFirstByItemAndStartBeforeAndStatusNotOrderByEndDesc(item,
@@ -90,9 +89,9 @@ public class ItemServiceImpl implements ItemService {
                             BookingStatus.REJECTED)
                     .map(bookingMapper::toBookingShortDto)
                     .orElse(null);
-            extendedItemDto.setLastBooking(lastBookingDto);
-            extendedItemDto.setNextBooking(nextBookingDto);
-            return extendedItemDto;
+            itemDto.setLastBooking(lastBookingDto);
+            itemDto.setNextBooking(nextBookingDto);
+            return itemDto;
         }
     }
 

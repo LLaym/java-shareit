@@ -34,7 +34,6 @@ import static ru.practicum.shareit.booking.model.BookingStatus.WAITING;
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository repository;
-    private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingMapper bookingMapper;
 

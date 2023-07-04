@@ -33,11 +33,11 @@ public class Item {
     @Column(name = "is_available", nullable = false)
     private Boolean available;
 
-    @OneToMany
-    @JoinColumn(name = "item_id")
-    private List<Comment> comments = new ArrayList<>();
-
     @ManyToOne
     @JoinColumn(name = "request_id")
     private Request request;
+
+    @OneToMany
+    @JoinColumn(name = "item_id")
+    private List<Comment> comments = new ArrayList<>();
 }

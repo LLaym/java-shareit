@@ -5,7 +5,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreationCommentDto;
-import ru.practicum.shareit.item.dto.ExtendedItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.validation.group.AddNewItemAction;
@@ -29,7 +28,7 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ExtendedItemDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
                                    @PathVariable @Min(1L) long id) {
         return itemService.getById(userId, id);
     }
