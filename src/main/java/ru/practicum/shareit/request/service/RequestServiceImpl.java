@@ -14,7 +14,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.util.exception.NotFoundException;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +22,7 @@ public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
     private final RequestMapper requestMapper;
+
     @Override
     public RequestDto create(long userId, CreationRequestDto creationRequestDto) {
         User requestor = userRepository.findById(userId)
@@ -30,6 +30,15 @@ public class RequestServiceImpl implements RequestService {
         Request request = requestMapper.toRequest(creationRequestDto, requestor);
 
         return requestMapper.toRequestDto(requestRepository.save(request));
+    }
+
+    @Override
+    public RequestDto getById(long userId, long requestId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        Request request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new NotFoundException("Request not found"));
+        return requestMapper.toRequestDto(request);
     }
 
     @Override
@@ -56,14 +65,5 @@ public class RequestServiceImpl implements RequestService {
                 .filter(request -> request.getRequestor().getId() != userId)
                 .map(requestMapper::toRequestDto)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public RequestDto getById(long userId, long requestId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-        Request request = requestRepository.findById(requestId)
-                .orElseThrow(() -> new NotFoundException("Request not found"));
-        return requestMapper.toRequestDto(request);
     }
 }

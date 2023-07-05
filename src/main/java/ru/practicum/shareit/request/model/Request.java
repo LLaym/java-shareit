@@ -13,7 +13,8 @@ import java.util.List;
 /**
  * TODO Sprint add-item-requests.
  */
-@Getter @Setter
+@Getter
+@Setter
 @Entity
 @Table(name = "requests")
 public class Request {

@@ -6,6 +6,7 @@ import ru.practicum.shareit.item.validation.group.AddNewItemAction;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -30,5 +31,5 @@ public class ItemDto {
     private BookingShortDto lastBooking;
     private BookingShortDto nextBooking;
     private Long requestId;
-    private List<CommentDto> comments;
+    private List<CommentDto> comments = new ArrayList<>();
 }

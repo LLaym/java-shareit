@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RequestMapper {
     private final ItemMapper itemMapper;
+
     public Request toRequest(CreationRequestDto creationRequestDto, User requestor) {
         Request request = new Request();
 
@@ -28,7 +29,7 @@ public class RequestMapper {
 
         requestDto.setId(request.getId());
         requestDto.setDescription(request.getDescription());
-        requestDto.setCreated(request.getCreated());
+        requestDto.setCreated(request.getCreated().toString());
         requestDto.setRequestorId(request.getRequestor().getId());
         requestDto.setItems(request.getItems().stream()
                 .map(itemMapper::toItemDto)

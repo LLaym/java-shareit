@@ -18,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Validated
 public class ItemController {
     private final ItemService itemService;
 
@@ -29,35 +30,35 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public ItemDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                   @PathVariable @Min(1L) long id) {
+                           @PathVariable long id) {
         return itemService.getById(userId, id);
     }
 
     @PatchMapping("/{id}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                          @PathVariable @Min(1L) long id,
+                          @PathVariable long id,
                           @RequestBody @Validated({Default.class, UpdateItemAction.class}) ItemDto itemDto) {
         return itemService.update(ownerId, id, itemDto);
     }
 
     @GetMapping
     public List<ItemDto> getAllByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                                         @RequestParam(defaultValue = "0") int from,
-                                         @RequestParam(defaultValue = "10") int size) {
+                                         @RequestParam(defaultValue = "0") @Min(0L) int from,
+                                         @RequestParam(defaultValue = "10") @Min(1L) int size) {
         return itemService.getAllByOwnerId(ownerId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDto> getAllBySubstring(@RequestHeader("X-Sharer-User-Id") long userId,
                                            @RequestParam(name = "text") String substring,
-                                           @RequestParam(defaultValue = "0") int from,
-                                           @RequestParam(defaultValue = "10") int size) {
+                                           @RequestParam(defaultValue = "0") @Min(0L) int from,
+                                           @RequestParam(defaultValue = "10") @Min(1L) int size) {
         return itemService.getAllBySubstring(userId, substring, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") long userId,
-                                    @PathVariable @Min(1L) long itemId,
+                                    @PathVariable long itemId,
                                     @RequestBody @Valid CreationCommentDto creationCommentDto) {
         return itemService.createComment(userId, itemId, creationCommentDto);
     }

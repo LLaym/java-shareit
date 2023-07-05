@@ -7,8 +7,8 @@ import ru.practicum.shareit.user.dto.UserDto;
 @Getter
 @Setter
 @NoArgsConstructor
-@Builder
 @AllArgsConstructor
+@Builder
 public class BookingDto {
     private Long id;
     private String start;
