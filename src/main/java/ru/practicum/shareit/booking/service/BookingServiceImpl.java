@@ -12,6 +12,8 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.util.exception.NoAccessException;
@@ -20,7 +22,6 @@ import ru.practicum.shareit.util.exception.ValidationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.booking.model.BookingStatus.WAITING;
@@ -30,23 +31,34 @@ import static ru.practicum.shareit.booking.model.BookingStatus.WAITING;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
-    private final BookingRepository repository;
+    private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
     private final BookingMapper bookingMapper;
 
     @Transactional
     @Override
     public BookingDto create(long userId, CreationBookingDto creationBookingDto) {
-        Booking booking = bookingMapper.toBooking(userId, creationBookingDto);
-        if (booking.getItem().getAvailable().equals(false)) {
-            throw new ValidationException("Item is not available for booking");
-        }
-        if (Objects.equals(booking.getBooker().getId(), booking.getItem().getOwner().getId())) {
+        User booker = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(
+                        "User with id " + userId + " does not exist"));
+        Item item = itemRepository.findById(creationBookingDto.getItemId())
+                .orElseThrow(() -> new NotFoundException(
+                        "Item with id " + creationBookingDto.getItemId() + " does not exist"));
+
+        if (booker.getId().equals(item.getOwner().getId())) {
             throw new NotFoundException("You are owner of item");
         }
+        if (item.getAvailable().equals(false)) {
+            throw new ValidationException("Item is not available for booking");
+        }
 
+        Booking booking = bookingMapper.toBooking(creationBookingDto);
+        booking.setBooker(booker);
+        booking.setItem(item);
         booking.setStatus(WAITING);
-        Booking bookingCreated = repository.save(booking);
+
+        Booking bookingCreated = bookingRepository.save(booking);
 
         log.info("Booking created: {}", bookingCreated);
         return bookingMapper.toBookingDto(bookingCreated);
@@ -54,40 +66,32 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingDto confirmStatus(long ownerId, long bookingId, String approved) {
-        Booking booking = repository.findById(bookingId)
+    public BookingDto confirmStatus(long ownerId, long bookingId, String flag) {
+        Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking with id " + bookingId + " not found"));
-        User user = userRepository.findById(ownerId)
+        User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("User with id " + ownerId + " not found"));
-        long bookingItemOwnerId = booking.getItem().getOwner().getId();
-        long userId = user.getId();
 
-        if (userId != bookingItemOwnerId) {
-            throw new NoAccessException("User with id " + ownerId + " is not owner of Item with id " + bookingItemOwnerId);
-        }
+        long itemOwnerId = booking.getItem().getOwner().getId();
 
-        if (approved.equals("true") && !booking.getStatus().equals(BookingStatus.APPROVED)) {
-            booking.setStatus(BookingStatus.APPROVED);
-            repository.save(booking);
-        } else if (approved.equals("false")) {
-            booking.setStatus(BookingStatus.REJECTED);
-            repository.save(booking);
+        if (owner.getId() == itemOwnerId) {
+            setStatusOrThrow(flag, booking);
+            bookingRepository.save(booking);
         } else {
-            throw new ValidationException("Already approved");
+            throw new NoAccessException("User with id " + ownerId + " is not owner of Item with id " + itemOwnerId);
         }
-
         return bookingMapper.toBookingDto(booking);
     }
 
     @Override
     public BookingDto getById(long userId, long bookingId) {
-        Booking booking = repository.findById(bookingId)
+        Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking with id " + bookingId + " not found"));
 
-        Long bookingOwnerId = booking.getBooker().getId();
-        Long bookingItemOwnerId = booking.getItem().getOwner().getId();
+        Long bookerId = booking.getBooker().getId();
+        Long itemOwnerId = booking.getItem().getOwner().getId();
 
-        if (userId == bookingOwnerId || userId == bookingItemOwnerId) {
+        if (userId == itemOwnerId || userId == bookerId) {
             return bookingMapper.toBookingDto(booking);
         } else {
             throw new NoAccessException("User with id: " + userId + " does not have permission to booking");
@@ -102,43 +106,49 @@ public class BookingServiceImpl implements BookingService {
         Sort sort = Sort.by("start").descending();
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
-        List<Booking> bookings =
-                repository.findAllByBooker(booker, pageRequest);
+        List<Booking> bookings = filterBookingsByState(
+                bookingRepository.findAllByBooker(booker, pageRequest),
+                state);
 
-        if (state.isEmpty()) {
-            return bookings.stream()
-                    .map(bookingMapper::toBookingDto)
-                    .collect(Collectors.toList());
-        } else {
-            return filterBookings(state, bookings).stream()
-                    .map(bookingMapper::toBookingDto)
-                    .collect(Collectors.toList());
-        }
+        return bookings.stream()
+                .map(bookingMapper::toBookingDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<BookingDto> getAllByItemOwner(long userId, String state, int from, int size) {
-        User itemsOwner = userRepository.findById(userId)
+        User itemOwner = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Sort sort = Sort.by("start").descending();
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
-        List<Booking> bookings =
-                repository.findAllByItemOwner(itemsOwner, pageRequest);
+        List<Booking> bookings = filterBookingsByState(
+                bookingRepository.findAllByItemOwner(itemOwner, pageRequest),
+                state);
 
-        if (state.isEmpty()) {
-            return bookings.stream()
-                    .map(bookingMapper::toBookingDto)
-                    .collect(Collectors.toList());
+        return bookings.stream()
+                .map(bookingMapper::toBookingDto)
+                .collect(Collectors.toList());
+    }
+
+    private void setStatusOrThrow(String flag, Booking booking) {
+        if (booking.getStatus().equals(WAITING)) {
+            if (flag.equals("true")) {
+                booking.setStatus(BookingStatus.APPROVED);
+            }
+            if (flag.equals("false")) {
+                booking.setStatus(BookingStatus.REJECTED);
+            }
         } else {
-            return filterBookings(state, bookings).stream()
-                    .map(bookingMapper::toBookingDto)
-                    .collect(Collectors.toList());
+            throw new ValidationException("Cannot confirm with status " + booking.getStatus());
         }
     }
 
-    private List<Booking> filterBookings(String state, List<Booking> bookings) {
+    private List<Booking> filterBookingsByState(List<Booking> bookings, String state) {
+        if (state.isEmpty()) {
+            return bookings;
+        }
         switch (state) {
             case "CURRENT":
                 return bookings.stream()
