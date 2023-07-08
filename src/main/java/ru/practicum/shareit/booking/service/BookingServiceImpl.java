@@ -80,6 +80,8 @@ public class BookingServiceImpl implements BookingService {
         } else {
             throw new NoAccessException("User with id " + ownerId + " is not owner of Item with id " + itemOwnerId);
         }
+
+        log.info("Confirm status of booking with id {}", bookingId);
         return bookingMapper.toBookingDto(booking);
     }
 
@@ -92,6 +94,7 @@ public class BookingServiceImpl implements BookingService {
         Long itemOwnerId = booking.getItem().getOwner().getId();
 
         if (userId == itemOwnerId || userId == bookerId) {
+            log.info("Provided Booking: {}", booking);
             return bookingMapper.toBookingDto(booking);
         } else {
             throw new NoAccessException("User with id: " + userId + " does not have permission to booking");
@@ -110,6 +113,7 @@ public class BookingServiceImpl implements BookingService {
                 bookingRepository.findAllByBooker(booker, pageRequest),
                 state);
 
+        log.info("Provided all Bookings by User");
         return bookings.stream()
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
@@ -127,6 +131,7 @@ public class BookingServiceImpl implements BookingService {
                 bookingRepository.findAllByItemOwner(itemOwner, pageRequest),
                 state);
 
+        log.info("Provided all Bookings by Item owner");
         return bookings.stream()
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
