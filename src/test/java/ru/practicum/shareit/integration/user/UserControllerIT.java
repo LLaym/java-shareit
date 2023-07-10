@@ -40,13 +40,15 @@ class UserControllerIT {
 
     @Test
     void create_whenUserDtoValid_thenResponseStatusOkWithUserDtoInBody() throws Exception {
+        long userId = 1L;
+
         UserDto userDto = UserDto.builder()
                 .name("Nick")
                 .email("nick2023@gmail.com")
                 .build();
 
         UserDto expectedUserDto = UserDto.builder()
-                .id(1L)
+                .id(userId)
                 .name("Nick")
                 .email("nick2023@gmail.com")
                 .build();
@@ -57,7 +59,7 @@ class UserControllerIT {
                         .content(mapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(expectedUserDto.getId()), Long.class))
@@ -67,6 +69,8 @@ class UserControllerIT {
 
     @Test
     void create_whenUserDtoNameNull_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         UserDto userDto = UserDto.builder()
                 .email("nick2023@gmail.com")
                 .build();
@@ -75,13 +79,17 @@ class UserControllerIT {
                         .content(mapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(userService, never()).create(any(UserDto.class));
     }
 
     @Test
     void create_whenUserDtoNameBiggerThan256_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         UserDto userDto = UserDto.builder()
                 .name("Nicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknick" +
                         "nicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknick" +
@@ -93,13 +101,17 @@ class UserControllerIT {
                         .content(mapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(userService, never()).create(any(UserDto.class));
     }
 
     @Test
     void create_whenUserDtoEmailNull_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         UserDto userDto = UserDto.builder()
                 .name("Nick")
                 .build();
@@ -108,13 +120,17 @@ class UserControllerIT {
                         .content(mapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(userService, never()).create(any(UserDto.class));
     }
 
     @Test
     void create_whenUserDtoEmailNotValid_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         UserDto userDto = UserDto.builder()
                 .name("Nick")
                 .email("nick2023gmail")
@@ -124,9 +140,11 @@ class UserControllerIT {
                         .content(mapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(userService, never()).create(any(UserDto.class));
     }
 
     @Test
@@ -139,7 +157,7 @@ class UserControllerIT {
                 .email("nick2023@gmail.com")
                 .build();
 
-        when(userService.getById(anyLong())).thenReturn(expectedResult);
+        when(userService.getById(userId)).thenReturn(expectedResult);
 
         mvc.perform(get("/users/{id}", userId)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -198,6 +216,8 @@ class UserControllerIT {
                         .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(userService, never()).update(anyLong(), any(UserDto.class));
     }
 
     @Test
@@ -216,6 +236,8 @@ class UserControllerIT {
                         .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(userService, never()).update(anyLong(), any(UserDto.class));
     }
 
     @Test

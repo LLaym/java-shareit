@@ -24,7 +24,7 @@ class UserServiceImplIT {
     private final UserService userService;
 
     @Test
-    void create() {
+    void create_whenSuccess_thenCreateAndUserDtoReturned() {
         UserDto userDto = new UserDto();
         userDto.setName("John");
         userDto.setEmail("john@example.com");
@@ -44,7 +44,7 @@ class UserServiceImplIT {
     }
 
     @Test
-    void getById() {
+    void getById_whenPersist_thenUserDtoReturned() {
         User user = new User(null, "John", "john@example.com");
         em.persist(user);
         em.flush();
@@ -57,7 +57,7 @@ class UserServiceImplIT {
     }
 
     @Test
-    void update() {
+    void update_whenSuccess_thenUpdateAndUserDtoReturned() {
         User user = new User(null, "John", "john@example.com");
         em.persist(user);
         em.flush();
@@ -79,7 +79,7 @@ class UserServiceImplIT {
     }
 
     @Test
-    void deleteById() {
+    void deleteById_whenSuccess_thenDeleteUser() {
         User user = new User(null, "John", "john@example.com");
         em.persist(user);
         em.flush();
@@ -94,7 +94,7 @@ class UserServiceImplIT {
     }
 
     @Test
-    void getAll() {
+    void getAll_whenPersist_thenCollectionOfUserDtoReturned() {
         User user = new User(null, "John", "john@example.com");
         em.persist(user);
         em.flush();

@@ -51,7 +51,7 @@ class BookingServiceImplIT {
     }
 
     @Test
-    void create() {
+    void create_whenSuccess_thenCreateAndBookingDtoReturned() {
         CreationBookingDto creationBookingDto = new CreationBookingDto();
         creationBookingDto.setItemId(item.getId());
         creationBookingDto.setStart(LocalDateTime.now().plusDays(1).toString());
@@ -79,7 +79,7 @@ class BookingServiceImplIT {
     }
 
     @Test
-    void confirmStatus() {
+    void confirmStatus_whenSuccess_thenConfirmAndBookingDtoReturned() {
         Booking booking = new Booking();
         booking.setStart(LocalDateTime.now().plusDays(1));
         booking.setEnd(LocalDateTime.now().plusDays(2));
@@ -115,7 +115,7 @@ class BookingServiceImplIT {
     }
 
     @Test
-    void getById() {
+    void getById_whenPersist_thenBookingDtoReturned() {
         Booking booking = new Booking();
         booking.setStart(LocalDateTime.now().plusDays(1));
         booking.setEnd(LocalDateTime.now().plusDays(2));
@@ -142,7 +142,7 @@ class BookingServiceImplIT {
     }
 
     @Test
-    void getAllByUser() {
+    void getAllByUser_whenPersist_thenCollectionOfBookingDtoReturned() {
         Booking booking = new Booking();
         booking.setStart(LocalDateTime.now().plusDays(1));
         booking.setEnd(LocalDateTime.now().plusDays(2));
@@ -172,7 +172,7 @@ class BookingServiceImplIT {
     }
 
     @Test
-    void getAllByItemOwner() {
+    void getAllByItemOwner_whenPersist_thenCollectionOfBookingDtoReturned() {
         Booking booking = new Booking();
         booking.setStart(LocalDateTime.now().plusDays(1));
         booking.setEnd(LocalDateTime.now().plusDays(2));

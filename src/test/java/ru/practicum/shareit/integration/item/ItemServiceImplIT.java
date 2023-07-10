@@ -41,7 +41,7 @@ class ItemServiceImplIT {
     }
 
     @Test
-    void create() {
+    void create_whenPerSuccess_thenCreateAndItemDtoReturned() {
         ItemDto itemDto = new ItemDto();
         itemDto.setName("Hammer");
         itemDto.setDescription("Handy tool");
@@ -63,7 +63,7 @@ class ItemServiceImplIT {
     }
 
     @Test
-    void getById() {
+    void getById_whenPersist_thenItemDtoReturned() {
         Item item = new Item();
         item.setOwner(itemOwner);
         item.setName("Hammer");
@@ -85,7 +85,7 @@ class ItemServiceImplIT {
     }
 
     @Test
-    void update() {
+    void update_whenSuccess_thenUpdateAndItemDtoReturned() {
         Item item = new Item();
         item.setOwner(itemOwner);
         item.setName("Hammer");
@@ -119,7 +119,7 @@ class ItemServiceImplIT {
     }
 
     @Test
-    void getAllByOwnerId() {
+    void getAllByOwnerId_whenPersist_thenCollectionOfItemDtoReturned() {
         Item item = new Item();
         item.setOwner(itemOwner);
         item.setName("Hammer");
@@ -143,7 +143,7 @@ class ItemServiceImplIT {
     }
 
     @Test
-    void getAllBySubstring() {
+    void getAllBySubstring_whenPersist_thenCollectionOfItemDtoReturned() {
         String search = "hAm";
 
         Item item = new Item();
@@ -170,7 +170,7 @@ class ItemServiceImplIT {
     }
 
     @Test
-    void createComment() {
+    void createComment_whenSuccess_thenCreateAndCommentDtoReturned() {
         User booker = new User(null, "Kyle", "kyle@example.com");
         em.persist(booker);
         em.flush();

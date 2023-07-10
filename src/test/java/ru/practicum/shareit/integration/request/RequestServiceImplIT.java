@@ -35,7 +35,7 @@ class RequestServiceImplIT {
     }
 
     @Test
-    void create() {
+    void create_whenSuccess_thenCreateAndRequestDtoReturned() {
         CreationRequestDto creationRequestDto = new CreationRequestDto();
         creationRequestDto.setDescription("Something like hammer maybe?");
 
@@ -55,7 +55,7 @@ class RequestServiceImplIT {
     }
 
     @Test
-    void getById() {
+    void getById_whenPersist_thenRequestDtoReturned() {
         Request request = new Request();
         request.setRequestor(requestor);
         request.setDescription("Something like hummer");
@@ -70,7 +70,7 @@ class RequestServiceImplIT {
     }
 
     @Test
-    void getAllByUser() {
+    void getAllByUser_whenPersist_thenCollectionOfRequestDtoReturned() {
         Request request = new Request();
         request.setRequestor(requestor);
         request.setDescription("Something like hummer");
@@ -86,7 +86,7 @@ class RequestServiceImplIT {
     }
 
     @Test
-    void getAll() {
+    void getAll_whenPersist_thenCollectionOfRequestDtoReturned() {
         User anotherUser = new User(null, "Kyle", "kyle@example.com");
         em.persist(anotherUser);
         em.flush();

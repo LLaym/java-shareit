@@ -22,7 +22,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,6 +42,8 @@ class ItemControllerIT {
 
     @Test
     void create_whenItemDtoValid_thenResponseStatusOkWithItemDtoInBody() throws Exception {
+        long userId = 1L;
+
         ItemDto expectedItemDto = ItemDto.builder()
                 .id(1L)
                 .ownerId(1L)
@@ -66,7 +68,7 @@ class ItemControllerIT {
                         .content(mapper.writeValueAsString(inputItemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(expectedItemDto.getId()), Long.class))
@@ -82,6 +84,8 @@ class ItemControllerIT {
 
     @Test
     void create_whenItemDtoNameNull_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         ItemDto itemDto = ItemDto.builder()
                 .description("Useful tool")
                 .available(true)
@@ -91,13 +95,17 @@ class ItemControllerIT {
                         .content(mapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(itemService, never()).create(anyLong(), any(ItemDto.class));
     }
 
     @Test
     void create_whenItemDtoNameSizeBiggerThen256_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         ItemDto itemDto = ItemDto.builder()
                 .name("Haaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaammmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm" +
                         "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmeeeeeeeeeee" +
@@ -110,13 +118,17 @@ class ItemControllerIT {
                         .content(mapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(itemService, never()).create(anyLong(), any(ItemDto.class));
     }
 
     @Test
     void create_whenItemDtoDescriptionNull_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         ItemDto itemDto = ItemDto.builder()
                 .name("Hammer")
                 .available(true)
@@ -126,13 +138,17 @@ class ItemControllerIT {
                         .content(mapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(itemService, never()).create(anyLong(), any(ItemDto.class));
     }
 
     @Test
     void create_whenItemDtoDescriptionSizeBiggerThen512_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         ItemDto itemDto = ItemDto.builder()
                 .name("Hammer")
                 .description("Really useful tool really useful tool really useful tool really useful tool really" +
@@ -149,13 +165,17 @@ class ItemControllerIT {
                         .content(mapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(itemService, never()).create(anyLong(), any(ItemDto.class));
     }
 
     @Test
     void create_whenItemDtoAvailableNull_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         ItemDto itemDto = ItemDto.builder()
                 .name("Hammer")
                 .description("Useful tool")
@@ -165,13 +185,18 @@ class ItemControllerIT {
                         .content(mapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(itemService, never()).create(anyLong(), any(ItemDto.class));
     }
 
     @Test
     void getById_whenInvoke_thenResponseStatusOkWithItemDtoInBody() throws Exception {
+        long userId = 1L;
+        long itemId = 1L;
+
         ItemDto expectedItemDto = ItemDto.builder()
                 .id(1L)
                 .ownerId(1L)
@@ -186,9 +211,9 @@ class ItemControllerIT {
 
         when(itemService.getById(anyLong(), anyLong())).thenReturn(expectedItemDto);
 
-        mvc.perform(get("/items/1")
+        mvc.perform(get("/items/{id}", itemId)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(expectedItemDto.getId()), Long.class))
@@ -204,6 +229,9 @@ class ItemControllerIT {
 
     @Test
     void update_whenItemDtoValid_thenResponseStatusOkWithItemDtoInBody() throws Exception {
+        long userId = 1L;
+        long itemId = 1L;
+
         ItemDto updateBody = ItemDto.builder()
                 .name("Heavy hammer")
                 .build();
@@ -222,11 +250,11 @@ class ItemControllerIT {
 
         when(itemService.update(anyLong(), anyLong(), any(ItemDto.class))).thenReturn(expectedItemDto);
 
-        mvc.perform(patch("/items/1")
+        mvc.perform(patch("/items/{id}", itemId)
                         .content(mapper.writeValueAsString(updateBody))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(expectedItemDto.getId()), Long.class))
@@ -242,15 +270,21 @@ class ItemControllerIT {
 
     @Test
     void update_whenIdLessThanZero_thenResponseStatusServerError() throws Exception {
+        long userId = 1L;
+
         mvc.perform(patch("/items/-1")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
+
+        verify(itemService, never()).update(anyLong(), anyLong(), any(ItemDto.class));
     }
 
     @Test
     void getAllByOwner_whenFromAndSizeValid_thenResponseStatusOkWithItemDtoCollectionInBody() throws Exception {
+        long userId = 1L;
+
         ItemDto expectedItemDto = ItemDto.builder()
                 .id(1L)
                 .ownerId(1L)
@@ -267,7 +301,7 @@ class ItemControllerIT {
 
         mvc.perform(get("/items?from=0&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(1)))
@@ -284,33 +318,39 @@ class ItemControllerIT {
 
     @Test
     void getAllByOwner_whenFromOrSizeNotValid_thenResponseStatusServerError() throws Exception {
+        long userId = 1L;
+
         mvc.perform(get("/items?from=-1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/items?from=0&size=0")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/items?from=1&size=0")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/items?from=0&size=-1")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
+
+        verify(itemService, never()).getAllByOwnerId(anyLong(), anyInt(), anyInt());
     }
 
     @Test
     void getAllBySubstring_whenFromAndSizeValid_thenResponseStatusOkWithItemDtoCollectionInBody() throws Exception {
+        long userId = 1L;
+
         ItemDto expectedItemDto = ItemDto.builder()
                 .id(1L)
                 .ownerId(1L)
@@ -328,7 +368,7 @@ class ItemControllerIT {
 
         mvc.perform(get("/items/search?text=hAmm&from=0&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(1)))
@@ -345,33 +385,40 @@ class ItemControllerIT {
 
     @Test
     void getAllBySubstring_whenFromOrSizeNotValid_thenResponseStatusServerError() throws Exception {
+        long userId = 1L;
+
         mvc.perform(get("/items/search?text=hAmm&from=-1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/items/search?text=hAmm&from=0&size=0")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/items/search?text=hAmm&from=1&size=0")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/items/search?text=hAmm&from=0&size=-1")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
+
+        verify(itemService, never()).getAllBySubstring(anyLong(), anyString(), anyInt(), anyInt());
     }
 
     @Test
     void createComment_whenCreationCommentDtoValid_thenResponseStatusOkWithItemDtoInBody() throws Exception {
+        long userId = 1L;
+        long itemId = 1L;
+
         CreationCommentDto creationCommentDto = CreationCommentDto.builder()
                 .text("Its too heavy...")
                 .build();
@@ -385,35 +432,45 @@ class ItemControllerIT {
 
         when(itemService.createComment(anyLong(), anyLong(), any(CreationCommentDto.class))).thenReturn(commentDto);
 
-        mvc.perform(post("/items/1/comment")
+        mvc.perform(post("/items/{id}/comment", itemId)
                         .content(mapper.writeValueAsString(creationCommentDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(commentDto.getId()), Long.class))
                 .andExpect(jsonPath("$.text", is(commentDto.getText())))
                 .andExpect(jsonPath("$.authorName", is(commentDto.getAuthorName())))
                 .andExpect(jsonPath("$.created", is(commentDto.getCreated())));
+
+        verify(itemService, never()).createComment(userId, itemId, creationCommentDto);
     }
 
     @Test
     void createComment_whenCreationCommentDtoTextNull_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+        long itemId = 1L;
+
         CreationCommentDto creationCommentDto = CreationCommentDto.builder()
                 .build();
 
-        mvc.perform(post("/items/1/comment")
+        mvc.perform(post("/items/{id}/comment", itemId)
                         .content(mapper.writeValueAsString(creationCommentDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(itemService, never()).createComment(anyLong(), anyLong(), any(CreationCommentDto.class));
     }
 
     @Test
     void createComment_whenCreationCommentDtoTextSizeBiggerThen1024_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+        long itemId = 1L;
+
         CreationCommentDto creationCommentDto = CreationCommentDto.builder()
                 .text("Its too heavy, really heavy, really heavy really heavy, really heavy really heavy, really" +
                         " heavy really heavy, really heavy really heavy, really heavy really heavy, really heavy" +
@@ -429,12 +486,14 @@ class ItemControllerIT {
                         " heavy, really heavy really heavy, really heavy really heavy, really heavy ")
                 .build();
 
-        mvc.perform(post("/items/1/comment")
+        mvc.perform(post("/items/{id}/comment", itemId)
                         .content(mapper.writeValueAsString(creationCommentDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(itemService, never()).createComment(anyLong(), anyLong(), any(CreationCommentDto.class));
     }
 }

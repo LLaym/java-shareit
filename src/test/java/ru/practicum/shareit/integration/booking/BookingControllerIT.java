@@ -24,7 +24,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,6 +42,8 @@ class BookingControllerIT {
 
     @Test
     void create_whenCreationBookingDtoValid_thenResponseStatusOkWithBookingDtoInBody() throws Exception {
+        long userId = 1L;
+
         CreationBookingDto creationBookingDto = CreationBookingDto.builder()
                 .itemId(1L)
                 .start(LocalDateTime.now().plusHours(1).toString())
@@ -63,7 +65,7 @@ class BookingControllerIT {
                         .content(mapper.writeValueAsString(creationBookingDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(expectedResult.getId()), Long.class))
@@ -76,6 +78,8 @@ class BookingControllerIT {
 
     @Test
     void create_whenCreationBookingDtoItemIdLessThenZero_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         CreationBookingDto creationBookingDto = CreationBookingDto.builder()
                 .itemId(-1L)
                 .start(LocalDateTime.now().plusHours(1).toString())
@@ -86,13 +90,17 @@ class BookingControllerIT {
                         .content(mapper.writeValueAsString(creationBookingDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(bookingService, never()).create(anyLong(), any(CreationBookingDto.class));
     }
 
     @Test
     void create_whenCreationBookingDtoItemIdNull_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         CreationBookingDto creationBookingDto = CreationBookingDto.builder()
                 .start(LocalDateTime.now().plusHours(1).toString())
                 .end(LocalDateTime.now().plusDays(1).toString())
@@ -102,13 +110,17 @@ class BookingControllerIT {
                         .content(mapper.writeValueAsString(creationBookingDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(bookingService, never()).create(anyLong(), any(CreationBookingDto.class));
     }
 
     @Test
     void create_whenCreationBookingDtoStartNull_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         CreationBookingDto creationBookingDto = CreationBookingDto.builder()
                 .itemId(1L)
                 .end(LocalDateTime.now().plusDays(1).toString())
@@ -118,13 +130,17 @@ class BookingControllerIT {
                         .content(mapper.writeValueAsString(creationBookingDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(bookingService, never()).create(anyLong(), any(CreationBookingDto.class));
     }
 
     @Test
     void create_whenCreationBookingDtoEndNull_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         CreationBookingDto creationBookingDto = CreationBookingDto.builder()
                 .itemId(1L)
                 .start(LocalDateTime.now().plusHours(1).toString())
@@ -134,13 +150,17 @@ class BookingControllerIT {
                         .content(mapper.writeValueAsString(creationBookingDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(bookingService, never()).create(anyLong(), any(CreationBookingDto.class));
     }
 
     @Test
     void create_whenCreationBookingDtoEndBeforeNow_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         CreationBookingDto creationBookingDto = CreationBookingDto.builder()
                 .itemId(1L)
                 .start(LocalDateTime.now().plusHours(1).toString())
@@ -151,13 +171,17 @@ class BookingControllerIT {
                         .content(mapper.writeValueAsString(creationBookingDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(bookingService, never()).create(anyLong(), any(CreationBookingDto.class));
     }
 
     @Test
     void create_whenCreationBookingDtoEndBeforeStart_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         CreationBookingDto creationBookingDto = CreationBookingDto.builder()
                 .itemId(1L)
                 .start(LocalDateTime.now().plusHours(1).toString())
@@ -168,13 +192,17 @@ class BookingControllerIT {
                         .content(mapper.writeValueAsString(creationBookingDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(bookingService, never()).create(anyLong(), any(CreationBookingDto.class));
     }
 
     @Test
     void create_whenCreationBookingDtoEndEqualsStart_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         String start = LocalDateTime.now().plusDays(1).toString();
 
         CreationBookingDto creationBookingDto = CreationBookingDto.builder()
@@ -187,13 +215,17 @@ class BookingControllerIT {
                         .content(mapper.writeValueAsString(creationBookingDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(bookingService, never()).create(anyLong(), any(CreationBookingDto.class));
     }
 
     @Test
     void create_whenCreationBookingDtoStartBeforeNow_thenResponseStatusClientError() throws Exception {
+        long userId = 1L;
+
         CreationBookingDto creationBookingDto = CreationBookingDto.builder()
                 .itemId(1L)
                 .start(LocalDateTime.now().minusMinutes(1).toString())
@@ -204,13 +236,18 @@ class BookingControllerIT {
                         .content(mapper.writeValueAsString(creationBookingDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
+
+        verify(bookingService, never()).create(anyLong(), any(CreationBookingDto.class));
     }
 
     @Test
     void confirmStatus_whenBookingIdValid_thenResponseStatusOkWithBookingDtoInBody() throws Exception {
+        long userId = 1L;
+        long bookingId = 1L;
+
         BookingDto expectedResult = BookingDto.builder()
                 .id(1L)
                 .start("2023-07-05T15:00:00.000000")
@@ -222,9 +259,9 @@ class BookingControllerIT {
 
         when(bookingService.confirmStatus(anyLong(), anyLong(), anyString())).thenReturn(expectedResult);
 
-        mvc.perform(patch("/bookings/1?approved=true")
+        mvc.perform(patch("/bookings/{id}?approved=true", bookingId)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(expectedResult.getId()), Long.class))
@@ -237,15 +274,23 @@ class BookingControllerIT {
 
     @Test
     void confirmStatus_whenBookingIdLessThenZero_thenResponseStatusServerError() throws Exception {
-        mvc.perform(patch("/bookings/-1?approved=true")
+        long userId = 1L;
+        long bookingId = -1L;
+
+        mvc.perform(patch("/bookings/{id}?approved=true", bookingId)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
+
+        verify(bookingService, never()).confirmStatus(anyLong(), anyLong(), anyString());
     }
 
     @Test
     void getById_whenBookingIdValid_thenResponseStatusOkWithBookingDtoInBody() throws Exception {
+        long userId = 1L;
+        long bookingId = 1L;
+
         BookingDto expectedResult = BookingDto.builder()
                 .id(1L)
                 .start("2023-07-05T15:00:00.000000")
@@ -257,9 +302,9 @@ class BookingControllerIT {
 
         when(bookingService.getById(anyLong(), anyLong())).thenReturn(expectedResult);
 
-        mvc.perform(get("/bookings/1")
+        mvc.perform(get("/bookings/{id}", bookingId)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(expectedResult.getId()), Long.class))
@@ -272,15 +317,22 @@ class BookingControllerIT {
 
     @Test
     void getById_whenBookingIdLessThanZero_thenResponseStatusServerError() throws Exception {
-        mvc.perform(get("/bookings/-1")
+        long bookingId = -1L;
+        long userId = -1L;
+
+        mvc.perform(get("/bookings/{id}", bookingId)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
+
+        verify(bookingService, never()).getById(anyLong(), anyLong());
     }
 
     @Test
     void getAllByUser_whenFromAndSizeValid_thenResponseStatusOkWithBookingDtoCollectionInBody() throws Exception {
+        long userId = 1L;
+
         BookingDto expectedResult = BookingDto.builder()
                 .id(1L)
                 .start("2023-07-05T15:00:00.000000")
@@ -295,7 +347,7 @@ class BookingControllerIT {
 
         mvc.perform(get("/bookings?from=0&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(1)))
@@ -309,33 +361,39 @@ class BookingControllerIT {
 
     @Test
     void getAllByUser_whenFromOrSizeNotValid_thenResponseStatusServerError() throws Exception {
+        long userId = 1L;
+
         mvc.perform(get("/bookings?from=-1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/bookings?from=0&size=0")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/bookings?from=1&size=0")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/bookings?from=0&size=-1")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
+
+        verify(bookingService, never()).getAllByItemOwner(anyLong(), anyString(), anyInt(), anyInt());
     }
 
     @Test
     void getAllByItemOwner_whenFromAndSizeValid_thenResponseStatusOkWithBookingDtoCollectionInBody() throws Exception {
+        long userId = 1L;
+
         BookingDto expectedResult = BookingDto.builder()
                 .id(1L)
                 .start("2023-07-05T15:00:00.000000")
@@ -350,7 +408,7 @@ class BookingControllerIT {
 
         mvc.perform(get("/bookings/owner?from=0&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(1)))
@@ -360,32 +418,38 @@ class BookingControllerIT {
                 .andExpect(jsonPath("$[0].item", is(nullValue(ItemDto.class))))
                 .andExpect(jsonPath("$[0].booker", is(nullValue(UserDto.class))))
                 .andExpect(jsonPath("$[0].status", is(expectedResult.getStatus())));
+
+        verify(bookingService, never()).getAllByUser(anyLong(), anyString(), anyInt(), anyInt());
     }
 
     @Test
     void getAllByItemOwner_whenFromOrSizeNotValid_thenResponseStatusServerError() throws Exception {
+        long userId = 1L;
+
         mvc.perform(get("/bookings/owner?from=-1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/bookings/owner?from=0&size=0")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/bookings/owner?from=1&size=0")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
         mvc.perform(get("/bookings/owner?from=0&size=-1")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
+
+        verify(bookingService, never()).getAllByItemOwner(anyLong(), anyString(), anyInt(), anyInt());
     }
 }
