@@ -128,8 +128,7 @@ public class ItemServiceImpl implements ItemService {
         Sort sort = Sort.unsorted();
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
-        List<ItemDto> items = itemRepository.findAllByNameOrDescriptionContainingIgnoreCase(substring,
-                        substring,
+        List<ItemDto> items = itemRepository.findBySearchTermIgnoreCase(substring,
                         pageRequest).stream()
                 .filter(Item::getAvailable)
                 .map(itemMapper::toItemDto)

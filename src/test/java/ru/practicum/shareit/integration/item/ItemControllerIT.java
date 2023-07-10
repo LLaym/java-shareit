@@ -1,4 +1,4 @@
-package ru.practicum.shareit.web.item;
+package ru.practicum.shareit.integration.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ItemController.class)
 @ExtendWith(MockitoExtension.class)
-class ItemControllerTest {
+class ItemControllerIT {
 
     @Autowired
     ObjectMapper mapper;

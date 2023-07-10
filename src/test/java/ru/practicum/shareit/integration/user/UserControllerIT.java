@@ -1,4 +1,4 @@
-package ru.practicum.shareit.web.user;
+package ru.practicum.shareit.integration.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -26,9 +26,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = UserController.class)
 @ExtendWith(MockitoExtension.class)
-class UserControllerTest {
+@WebMvcTest(controllers = UserController.class)
+class UserControllerIT {
     @Autowired
     ObjectMapper mapper;
 
@@ -131,17 +131,19 @@ class UserControllerTest {
 
     @Test
     void getById_whenInvoke_thenResponseStatusOkWithUserDtoInBody() throws Exception {
+        long userId = 1;
+
         UserDto expectedResult = UserDto.builder()
-                .id(1L)
+                .id(userId)
                 .name("Nick")
                 .email("nick2023@gmail.com")
                 .build();
 
         when(userService.getById(anyLong())).thenReturn(expectedResult);
 
-        mvc.perform(get("/users/1")
+        mvc.perform(get("/users/{id}", userId)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(expectedResult.getId()), Long.class))
@@ -151,24 +153,26 @@ class UserControllerTest {
 
     @Test
     void update_whenUserDtoValid_thenResponseStatusOkWithUserDtoInBody() throws Exception {
+        long userId = 1;
+
         UserDto updateBody = UserDto.builder()
                 .name("Josh")
                 .email("josh123@gmail.com")
                 .build();
 
         UserDto expectedResult = UserDto.builder()
-                .id(1L)
+                .id(userId)
                 .name("Josh")
                 .email("josh123@gmail.com")
                 .build();
 
         when(userService.update(anyLong(), any(UserDto.class))).thenReturn(expectedResult);
 
-        mvc.perform(patch("/users/1")
+        mvc.perform(patch("/users/{id}", userId)
                         .content(mapper.writeValueAsString(updateBody))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(expectedResult.getId()), Long.class))
@@ -178,6 +182,8 @@ class UserControllerTest {
 
     @Test
     void update_whenUserDtoNameBiggerThan256_thenResponseStatusClienError() throws Exception {
+        long userId = 1;
+
         UserDto updateBody = UserDto.builder()
                 .name("Nicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknick" +
                         "nicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknicknick" +
@@ -185,46 +191,52 @@ class UserControllerTest {
                 .email("nick123@gmail.com")
                 .build();
 
-        mvc.perform(patch("/users/1")
+        mvc.perform(patch("/users/{id}", userId)
                         .content(mapper.writeValueAsString(updateBody))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
-    void update_whenUserDtoEmailNotValid_thenResponseStatusClienError() throws Exception {
+    void update_whenUserDtoEmailNotValid_thenResponseStatusClientError() throws Exception {
+        long userId = 1;
+
         UserDto updateBody = UserDto.builder()
                 .name("Nick")
                 .email("nick123gmail.com")
                 .build();
 
-        mvc.perform(patch("/users/1")
+        mvc.perform(patch("/users/{id}", userId)
                         .content(mapper.writeValueAsString(updateBody))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
     void delete_whenInvoke_thenResponseStatusOk() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.delete("/users/1")
-                        .header("X-Sharer-User-Id", 1L)
+        long userId = 1;
+
+        mvc.perform(MockMvcRequestBuilders.delete("/users/{id}", userId)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(userService, times(1)).deleteById(1);
+        verify(userService, times(1)).deleteById(userId);
         verifyNoMoreInteractions(userService);
     }
 
     @Test
     void getAll_whenInvoke_thenResponseStatusOkWithCollectionOfUserDtoInBody() throws Exception {
+        long userId = 1;
+
         UserDto userDto = UserDto.builder()
-                .id(1L)
+                .id(userId)
                 .name("Josh")
                 .email("josh123@gmail.com")
                 .build();
@@ -233,7 +245,7 @@ class UserControllerTest {
 
         mvc.perform(get("/users")
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(1)))

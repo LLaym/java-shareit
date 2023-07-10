@@ -14,10 +14,6 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByBooker(User booker, PageRequest pageRequest);
 
-    List<Booking> findAllByBooker(User booker);
-
-    List<Booking> findAllByItem(Item item);
-
     // last booking
     Optional<Booking> findFirstByItemAndStartBeforeAndStatusNotOrderByEndDesc(Item item,
                                                                               LocalDateTime currentTime,

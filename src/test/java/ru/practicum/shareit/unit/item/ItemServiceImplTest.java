@@ -546,8 +546,7 @@ class ItemServiceImplTest {
 
         when(userRepository.findById(userId))
                 .thenReturn(Optional.of(new User()));
-        when(itemRepository.findAllByNameOrDescriptionContainingIgnoreCase(anyString(),
-                anyString(),
+        when(itemRepository.findBySearchTermIgnoreCase(anyString(),
                 any(PageRequest.class)))
                 .thenReturn(List.of(item));
         when(itemMapper.toItemDto(item))
@@ -561,8 +560,7 @@ class ItemServiceImplTest {
         verify(userRepository, times(1))
                 .findById(anyLong());
         verify(itemRepository, times(1))
-                .findAllByNameOrDescriptionContainingIgnoreCase(anyString(),
-                        anyString(),
+                .findBySearchTermIgnoreCase(anyString(),
                         any(PageRequest.class));
         verify(itemMapper, times(1))
                 .toItemDto(any(Item.class));
@@ -579,8 +577,7 @@ class ItemServiceImplTest {
 
         when(userRepository.findById(userId))
                 .thenReturn(Optional.of(new User()));
-        when(itemRepository.findAllByNameOrDescriptionContainingIgnoreCase(anyString(),
-                anyString(),
+        when(itemRepository.findBySearchTermIgnoreCase(anyString(),
                 any(PageRequest.class)))
                 .thenReturn(List.of(item));
 
@@ -590,8 +587,7 @@ class ItemServiceImplTest {
         verify(userRepository, times(1))
                 .findById(anyLong());
         verify(itemRepository, times(1))
-                .findAllByNameOrDescriptionContainingIgnoreCase(anyString(),
-                        anyString(),
+                .findBySearchTermIgnoreCase(anyString(),
                         any(PageRequest.class));
         verifyNoMoreInteractions(userRepository, itemRepository);
     }

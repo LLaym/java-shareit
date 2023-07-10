@@ -1,4 +1,4 @@
-package ru.practicum.shareit.web.booking;
+package ru.practicum.shareit.integration.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = BookingController.class)
 @ExtendWith(MockitoExtension.class)
-class BookingControllerTest {
+class BookingControllerIT {
 
     @Autowired
     ObjectMapper mapper;
