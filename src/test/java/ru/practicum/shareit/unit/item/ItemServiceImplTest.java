@@ -86,6 +86,7 @@ class ItemServiceImplTest {
         verify(itemMapper, times(1)).toItem(itemDto);
         verify(userRepository, times(1)).findById(ownerId);
         verify(itemRepository, times(1)).save(item);
+        verify(itemMapper, times(1)).toItemDto(item);
         verifyNoMoreInteractions(itemMapper, userRepository, itemRepository);
     }
 
