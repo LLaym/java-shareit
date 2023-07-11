@@ -1,24 +1,120 @@
-# :atom: ShareIt
-**ShareIt** - sharing service.
-## :bulb: How to use
-**The main function of the service is to allow users to share belongings.** 
-The service enables users to showcase the items they are willing to share, as well as search for the desired item and rent it for a certain period of time.
-### User endpoints
-- ```POST /users``` - create user
-- ```GET /users/{id}``` - get user info
-- ```PATCH /users/{id}``` - edit user
-- ```DELETE /users/{id}``` - delete user
-- ```GET /users``` - show all users
-### Item endpoints
-- ```POST /items``` - create item
-- ```PATCH /items/{id}``` - edit item
-- ```GET /items/{id}``` - get item info
-- ```GET /items``` - get all items info
-- ```GET /items/search?text={text}``` - find item by name or description
-- ```POST /items/{itemId}/comment``` - post comment to item
-### Booking endpoints
-- ```POST /bookings``` - create booking
-- ```GET /bookings``` - get all bookings by user
-- ```GET /bookings/owner``` - get all bookings by item owner
-- ```GET /bookings/{bookingid}}``` - get booking info
-- ```PATCH /bookings/{bookingid}}``` - confirm booking status by item owner
+# :atom: ShareIt - Things Sharing Application
+
+**ShareIt** - приложение для совместного использования вещей. Основная функция сервиса заключается в том, чтобы позволить пользователям делиться своими вещами. 
+Сервис позволяет пользователям выставлять на показ предметы, которыми они готовы поделиться, 
+а также искать нужные предметы и арендовать их на определенный период времени. Программа предоставляет API для
+упрвления основными сущностями. Обеспечивает операции создания, чтения, обновления и удаления данных через 
+соответствующие HTTP-методы и пути запросов.
+Используемый стек: Java 11, Spring Boot (WEB starter), JPA, PostgreSQL, JUnit5, Lombok, QueryDSL
+
+## :open_file_folder: Требования
+- Java 11: Версия языка Java, на которой основано приложение.
+- PostgreSQL: Требуется в случае использования реальной БД (возможно изменить в **_.properties_** файле 
+настроек приложения)
+
+## :bulb: API приложения
+
+Предметы:
+- ```POST /items``` - Добавление новой вещи.
+- ```PATCH /items/{id}``` - Редактирование вещи. Изменить можно название, описание и статус доступа к аренде.
+- ```GET /items/{id}``` - Просмотр информации о конкретной вещи.
+- ```GET /items``` - Просмотр владельцем списка всех его вещей с указанием названия и описания для каждой.
+- ```GET /items/search?text={text}``` - Поиск вещи потенциальным арендатором.
+Пользователь передаёт в строке запроса текст, и система ищет вещи, содержащие этот текст в названии или описании.
+- ```POST /items/{itemId}/comment``` - добавить комментарий к предмету (возможно для пользователей, которые
+арендовали когда либо этот предмет).
+
+Аренда:
+- ```POST /bookings``` - Добавление нового запроса на бронирование.
+Запрос может быть создан любым пользователем, а затем подтверждён владельцем вещи.
+- ```GET /bookings?state={state}``` - Получение списка всех бронирований текущего пользователя.
+- ```GET /bookings/owner?state={state}``` - Получение списка бронирований для всех вещей текущего пользователя.
+- ```GET /bookings/{bookingid}``` - Получение данных о конкретном бронировании (включая его статус).
+Может быть выполнено либо автором бронирования, либо владельцем вещи, к которой относится бронирование.
+- ```PATCH /bookings/{bookingId}?approved={approved}``` - Подтверждение или отклонение запроса на бронирование.
+Может быть выполнено только владельцем вещи.
+
+Запросы на вещи:
+- ```POST /requests``` - Добавить новый запрос вещи. В нем пользователь описывает какая вещь ему нужна.
+На данный запрос пользователи могут добавлять свои вещи.
+- ```GET /requests/{requestId}``` - Получить данные об одном конкретном запросе вместе с данными об ответах на него.
+- ```GET /requests``` - Получить список своих запросов вместе с данными об ответах на них.
+- ```GET /requests/all?from={from}&size={size}``` - Получить список запросов, созданных другими пользователями.
+
+Пользователи:
+- ```POST /users``` - Создать нового пользователя.
+- ```GET /users/{id}``` - Получить информацию о конкретном пользователе.
+- ```PATCH /users/{id}``` - Редактировать пользователя.
+- ```DELETE /users/{id}``` - Удалить пользователя.
+- ```GET /users``` - Получить список всех пользователей.
+
+### Пример использования
+
+**Сохранение ссылки**
+
+`POST /items`
+
+Данный метод позволяет добавить новую вещь в приложение. Необходимо отправить JSON-объект с информацией о вещи.
+
+Пример запроса:
+
+`````
+{
+    "name": "Дрель",
+    "description": "Простая дрель",
+    "available": true
+}
+`````
+
+**Создать бронирование определённой вещи**
+
+`POST /bookings`
+
+Данный метод позволяет добавить новую вещь в приложение. Необходимо отправить JSON-объект с информацией о вещи.
+
+Пример запроса:
+
+`````
+{
+    "itemId": 2,
+    "start": "{{start}}",
+    "end": "{{end}}"
+}
+`````
+
+**Получение списка бронировний**
+
+Пример запроса:
+
+````
+GET /bookings?from=4&size=2
+````
+
+Ответ:
+
+````
+[
+    {
+        "id": 3,
+        "start": "2023-07-11T19:03:41",
+        "end": "2023-07-11T20:03:41",
+        "item": {
+            "id": 1,
+            "ownerId": 1,
+            "name": "Аккумуляторная дрель",
+            "description": "Аккумуляторная дрель + аккумулятор",
+            "available": true,
+            "lastBooking": null,
+            "nextBooking": null,
+            "requestId": null,
+            "comments": []
+        },
+        "booker": {
+            "id": 4,
+            "name": "user",
+            "email": "user@user.com"
+        },
+        "status": "REJECTED"
+    }
+]
+````

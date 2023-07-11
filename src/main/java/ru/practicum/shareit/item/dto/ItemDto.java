@@ -1,17 +1,19 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.item.validation.group.AddNewItemAction;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ItemDto {
     private Long id;
     private Long ownerId;
@@ -28,4 +30,6 @@ public class ItemDto {
     private Boolean available;
     private BookingShortDto lastBooking;
     private BookingShortDto nextBooking;
+    private Long requestId;
+    private List<CommentDto> comments = new ArrayList<>();
 }

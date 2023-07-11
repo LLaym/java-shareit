@@ -18,14 +18,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @Transactional
     @Override
     public UserDto create(UserDto userDto) {
         User user = userMapper.toUser(userDto);
-        User userCreated = repository.save(user);
+        User userCreated = userRepository.save(user);
 
         log.info("Added new User: {}", userCreated);
         return userMapper.toUserDto(userCreated);
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getById(long id) {
-        User user = repository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
         log.info("Provided User: {}", user);
@@ -44,17 +44,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto update(long id, UserDto userDto) {
         User user = userMapper.toUser(userDto);
-        User userToUpdate = repository.findById(id)
+        User userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
-        if (user.getName() != null) {
-            userToUpdate.setName(user.getName());
-        }
-        if (user.getEmail() != null) {
-            userToUpdate.setEmail(user.getEmail());
-        }
+        updateFields(user, userToUpdate);
 
-        User userUpdated = repository.save(userToUpdate);
+        User userUpdated = userRepository.save(userToUpdate);
 
         log.info("Updated User: {}", userUpdated);
         return userMapper.toUserDto(userUpdated);
@@ -63,20 +58,29 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void deleteById(long id) {
-        User user = repository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
 
-        repository.deleteById(id);
+        userRepository.deleteById(id);
         log.info("Deleted User: {}", user);
     }
 
     @Override
     public List<UserDto> getAll() {
-        List<UserDto> users = repository.findAll().stream()
+        List<UserDto> users = userRepository.findAll().stream()
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
 
         log.info("Provided all Users list");
         return users;
+    }
+
+    private void updateFields(User user, User userToUpdate) {
+        if (user.getName() != null) {
+            userToUpdate.setName(user.getName());
+        }
+        if (user.getEmail() != null) {
+            userToUpdate.setEmail(user.getEmail());
+        }
     }
 }
