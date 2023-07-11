@@ -56,7 +56,7 @@ public class RequestServiceImpl implements RequestService {
         User requestor = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Sort sort = Sort.by("created").descending();
+        Sort sort = Sort.sort(Request.class).by(Request::getCreated).descending();
 
         log.info("Provided all Request list by User");
         return requestRepository.findAllByRequestor(requestor, sort).stream()
@@ -69,7 +69,7 @@ public class RequestServiceImpl implements RequestService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Sort sort = Sort.by("created").descending();
+        Sort sort = Sort.sort(Request.class).by(Request::getCreated).descending();
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
         log.info("Provided all Request list");

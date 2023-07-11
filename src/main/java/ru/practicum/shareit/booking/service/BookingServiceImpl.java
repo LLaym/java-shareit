@@ -106,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Sort sort = Sort.by("start").descending();
+        Sort sort = Sort.sort(Booking.class).by(Booking::getStart).descending();
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
         List<Booking> bookings = filterBookingsByState(
@@ -124,7 +124,7 @@ public class BookingServiceImpl implements BookingService {
         User itemOwner = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Sort sort = Sort.by("start").descending();
+        Sort sort = Sort.sort(Booking.class).by(Booking::getStart).descending();
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
         List<Booking> bookings = filterBookingsByState(

@@ -43,16 +43,16 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getAllByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                                         @RequestParam(defaultValue = "0") @Min(0L) int from,
-                                         @RequestParam(defaultValue = "10") @Min(1L) int size) {
+                                         @RequestParam(defaultValue = "0", required = false) @Min(0L) int from,
+                                         @RequestParam(defaultValue = "10", required = false) @Min(1L) int size) {
         return itemService.getAllByOwnerId(ownerId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDto> getAllBySubstring(@RequestHeader("X-Sharer-User-Id") long userId,
                                            @RequestParam(name = "text") String substring,
-                                           @RequestParam(defaultValue = "0") @Min(0L) int from,
-                                           @RequestParam(defaultValue = "10") @Min(1L) int size) {
+                                           @RequestParam(defaultValue = "0", required = false) @Min(0L) int from,
+                                           @RequestParam(defaultValue = "10", required = false) @Min(1L) int size) {
         return itemService.getAllBySubstring(userId, substring, from, size);
     }
 

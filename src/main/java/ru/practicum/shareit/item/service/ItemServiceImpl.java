@@ -106,7 +106,8 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("User with id " + ownerId + " not found"));
 
-        Sort sort = Sort.by("id");
+        Sort sort = Sort.sort(Item.class).by(Item::getId);
+
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
         List<Item> items = itemRepository.findAllByOwner(user, pageRequest);

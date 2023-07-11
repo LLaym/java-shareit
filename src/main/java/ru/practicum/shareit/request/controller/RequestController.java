@@ -37,8 +37,8 @@ public class RequestController {
 
     @GetMapping("/all")
     List<RequestDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId,
-                            @RequestParam(defaultValue = "0") @Min(0L) int from,
-                            @RequestParam(defaultValue = "10") @Min(1L) int size) {
+                            @RequestParam(defaultValue = "0", required = false) @Min(0L) int from,
+                            @RequestParam(defaultValue = "10", required = false) @Min(1L) int size) {
         return requestService.getAll(userId, from, size);
     }
 }
